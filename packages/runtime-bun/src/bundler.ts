@@ -1,11 +1,11 @@
 import * as esbuild from 'esbuild-wasm';
 import wasmUrl from 'esbuild-wasm/esbuild.wasm?url';
-import { parse, compileScript, compileTemplate, compileStyle } from '@vue/compiler-sfc';
 import type { Plugin, Loader } from 'esbuild-wasm';
 import type { VfsLike } from '@open-web/types-bun';
 import { detectProject } from './detect';
 import { esmUrl } from './esm';
 import { shimSource } from './shims';
+import { compileVueFile } from './vueSfc';
 
 let ready: Promise<typeof esbuild> | null = null;
 
@@ -93,53 +93,6 @@ function resolveVfsImport(vfs: VfsLike, resolveDir: string, spec: string): strin
   // Extensionless file with no extension at all (rare) — accept only
   // real files so directory imports fall through to index resolution.
   return isFile(vfs, clean) ? clean : clean; // onLoad reports if missing
-}
-
-function compileVueFile(source: string, filename: string) {
-  const { descriptor, errors } = parse(source, { filename });
-  if (errors.length) {
-    return { errors: errors.map((e) => ({ text: String(e) })) };
-  }
-  let js = '';
-  const hasScript = !!(descriptor.script || descriptor.scriptSetup);
-  const id = `data-v-${filename.replace(/[^a-zA-Z0-9]/g, '')}`;
-
-  if (hasScript) {
-    try {
-      const r = compileScript(descriptor, { id, inlineTemplate: !!descriptor.template });
-      js += r.content + '\n';
-    } catch (e) {
-      return { errors: [{ text: `vue compileScript: ${e}` }] };
-    }
-  }
-  if (!hasScript && descriptor.template) {
-    try {
-      const t = compileTemplate({
-        source: descriptor.template.content,
-        filename,
-        id,
-        compilerOptions: {},
-      });
-      js += t.code.replace('export function render', 'function render') + '\nexport default { render };\n';
-    } catch (e) {
-      return { errors: [{ text: `vue compileTemplate: ${e}` }] };
-    }
-  }
-  // Inject <style> blocks so SFC styles actually apply.
-  for (const style of descriptor.styles) {
-    try {
-      const css = compileStyle({
-        source: style.content,
-        filename,
-        id,
-        scoped: style.scoped,
-      }).code;
-      js += `;(() => { const el = document.createElement('style'); el.textContent = ${JSON.stringify(css)}; document.head.appendChild(el); })();\n`;
-    } catch {
-      /* style compile failure is non-fatal */
-    }
-  }
-  return { contents: js, loader: 'js' as Loader, resolveDir: dirOf(filename) };
 }
 
 export interface BundleOptions {
