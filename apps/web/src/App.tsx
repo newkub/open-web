@@ -8,6 +8,8 @@ import { TerminalPane } from './components/TerminalPane';
 import { StatusBar } from './components/StatusBar';
 import { Welcome } from './components/Welcome';
 import { QuickOpen } from './components/QuickOpen';
+import { PreviewPane } from './components/PreviewPane';
+import { previewProject } from './runtime/preview';
 import { requestSave } from './editorBus';
 
 export function App() {
@@ -79,9 +81,17 @@ export function App() {
             <button onClick={() => setState({ terminalOpen: !terminalOpen })}>
               {terminalOpen ? '▾ Hide terminal' : '▸ Show terminal'}
             </button>
-            <span className="terminal-hint">Ctrl+`</span>
+            <button
+              className="preview-btn"
+              disabled={!hasProject}
+              onClick={() => void previewProject((m) => console.log(m)).catch((e) => alert(e.message))}
+            >
+              ▶ Preview
+            </button>
+            <span className="terminal-hint">Ctrl+` · run/preview in terminal</span>
           </div>
           <TerminalPane />
+          <PreviewPane />
         </section>
       </div>
       <StatusBar />
@@ -89,3 +99,4 @@ export function App() {
     </div>
   );
 }
+

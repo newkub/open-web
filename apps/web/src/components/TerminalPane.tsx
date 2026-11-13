@@ -2,8 +2,13 @@ import { useEffect, useRef } from 'react';
 import { Terminal } from '@xterm/xterm';
 import { FitAddon } from '@xterm/addon-fit';
 import '@xterm/xterm/css/xterm.css';
-import { runShellLine } from '../shell';
+import { runShellLine, complete, getCwd } from '../shell';
 import { projectStore } from '../store';
+
+function prompt(write: (s: string) => void) {
+  const cwd = getCwd();
+  write(`\x1b[1;32m${cwd === '/' ? '~' : cwd} ❯ \x1b[0m`);
+}
 
 export function TerminalPane() {
   const hostRef = useRef<HTMLDivElement>(null);
@@ -15,7 +20,7 @@ export function TerminalPane() {
     const term = new Terminal({
       cursorBlink: true,
       fontSize: 13,
-      fontFamily: 'ui-monospace, "Cascadia Code", Consolas, monospace',
+      fontFamily: 'ui-monospace, "Cascidia Code", Consolas, monospace',
       theme: {
         background: '#0d1117',
         foreground: '#c9d1d9',
@@ -31,33 +36,76 @@ export function TerminalPane() {
     termRef.current = term;
 
     const write = (s: string) => term.write(s);
-    write('\x1b[1;36mstackbox shell\x1b[0m — virtual FS over the loaded project. Type `help`.\r\n');
-    write('node/npm/bun execution arrives with the edge-js runtime tier.\r\n\r\n');
+    write('\x1b[1;36mstackbox shell\x1b[0m — type `help`. `run <file>` executes JS, `preview` bundles the app.\r\n\r\n');
+    prompt(write);
 
     let line = '';
+    const history: string[] = [];
+    let histIdx = -1;
+    let busy = false;
+
     term.onData((data) => {
+      if (busy) return; // don't interleave input while a command runs
       if (data === '\r') {
         term.write('\r\n');
         const cmd = line;
         line = '';
-        void runShellLine(cmd, write).then(() => {
-          write('\x1b[1;32m❯\x1b[0m ');
+        histIdx = -1;
+        if (cmd.trim()) history.push(cmd);
+        busy = true;
+        void runShellLine(cmd, write).finally(() => {
+          busy = false;
+          prompt(write);
         });
       } else if (data === '\x7f') {
         if (line.length) {
           line = line.slice(0, -1);
           term.write('\b \b');
         }
-      } else if (data === '\x1b[A' || data === '\x1b[B') {
-        // history not implemented yet
+      } else if (data === '\x1b[A') {
+        // up — history
+        if (histIdx === -1) histIdx = history.length - 1;
+        else if (histIdx > 0) histIdx--;
+        if (histIdx >= 0 && history[histIdx] !== undefined) {
+          const prev = line;
+          line = history[histIdx];
+          term.write('\x1b[2K\r' + '\x1b[1;32m' + (getCwd() === '/' ? '~' : getCwd()) + ' ❯ \x1b[0m' + line);
+          void prev;
+        }
+      } else if (data === '\x1b[B') {
+        // down
+        if (histIdx >= 0 && histIdx < history.length - 1) {
+          histIdx++;
+          line = history[histIdx];
+          term.write('\x1b[2K\r' + '\x1b[1;32m' + (getCwd() === '/' ? '~' : getCwd()) + ' ❯ \x1b[0m' + line);
+        } else {
+          histIdx = -1;
+          line = '';
+          term.write('\x1b[2K\r' + '\x1b[1;32m' + (getCwd() === '/' ? '~' : getCwd()) + ' ❯ \x1b[0m');
+        }
+      } else if (data === '\t') {
+        // TAB completion on last token
+        const parts = line.split(/\s+/);
+        const last = parts[parts.length - 1] ?? '';
+        void complete(last).then((cands) => {
+          if (cands.length === 1) {
+            parts[parts.length - 1] = cands[0];
+            line = parts.join(' ');
+            term.write('\x1b[2K\r' + '\x1b[1;32m' + (getCwd() === '/' ? '~' : getCwd()) + ' ❯ \x1b[0m' + line);
+          } else if (cands.length > 1) {
+            term.write('\r\n' + cands.slice(0, 30).join('  ') + '\r\n');
+            prompt(write);
+            term.write(line);
+          }
+        });
+      } else if (data === '\x03') {
+        line = '';
+        histIdx = -1;
+        term.write('^C\r\n');
+        prompt(write);
       } else if (data >= ' ') {
         line += data;
         term.write(data);
-      } else if (data === '\t') {
-        // no completion yet
-      } else if (data === '\x03') {
-        line = '';
-        term.write('^C\r\n\x1b[1;32m❯\x1b[0m ');
       }
     });
 
@@ -70,7 +118,6 @@ export function TerminalPane() {
     };
   }, []);
 
-  // re-fit when the pane becomes visible again
   useEffect(() => {
     if (open) requestAnimationFrame(() => termRef.current?.focus());
   }, [open]);

@@ -1,10 +1,12 @@
 import { loadRepo } from '../github';
 
 const EXAMPLES = [
+  { label: 'lzm0x219/template-vite-react', hint: 'React + Vite starter — preview works' },
+  { label: 'micahlt/vite-vue3-simple-starter', hint: 'Vue 3 + Vite starter — preview works' },
+  { label: 'solidjs/templates/tree/main/js', hint: 'SolidJS + Vite template — preview works' },
   { label: 'expressjs/express', hint: 'Minimal Node.js web framework' },
   { label: 'sindresorhus/ky', hint: 'Tiny fetch-based HTTP client' },
   { label: 'colinhacks/zod', hint: 'TypeScript-first schema validation' },
-  { label: 'markedjs/marked', hint: 'Fast markdown parser' },
 ];
 
 export function Welcome() {
@@ -24,6 +26,7 @@ export function Welcome() {
               key={ex.label}
               className="example-chip"
               onClick={() => void loadRepo(`https://github.com/${ex.label}`)}
+              title={ex.hint}
             >
               <span className="example-label">{ex.label}</span>
               <span className="example-hint">{ex.hint}</span>

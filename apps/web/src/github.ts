@@ -1,12 +1,14 @@
-import { unzipSync, strFromU8 } from 'fflate';
-import type { VfsLike } from './types';
+import { unzipSync } from 'fflate';
 import { getVfs, resetVfs } from './vfs';
 import { setState } from './store';
+import type { VfsLike } from './types';
 
 export interface RepoRef {
   owner: string;
   repo: string;
   branch: string;
+  /** Optional path inside the repo (e.g. monorepo subdirectory). */
+  subdir: string;
   url: string;
 }
 
@@ -16,15 +18,19 @@ const GITHUB_RE =
 export function parseGitHubUrl(input: string): RepoRef | null {
   const m = input.trim().match(GITHUB_RE);
   if (!m) return null;
-  const [, owner, repo, ref] = m;
-  return { owner, repo, branch: ref?.split('/')[0] ?? '', url: `https://github.com/${owner}/${repo}` };
+  const [, owner, repo, refPath] = m;
+  const segments = (refPath ?? '').split('/').filter(Boolean);
+  const branch = segments[0] ?? '';
+  const subdir = segments.slice(1).join('/');
+  const url = `https://github.com/${owner}/${repo}` + (subdir ? `/tree/${branch}/${subdir}` : '');
+  return { owner, repo, branch, subdir, url };
 }
 
 interface GhRepo {
   default_branch: string;
 }
 
-async function resolveBranch(owner: string, repo: string, hint: string): Promise<string> {
+export async function resolveBranch(owner: string, repo: string, hint: string): Promise<string> {
   if (hint) return hint;
   const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
     headers: { Accept: 'application/vnd.github+json' },
@@ -49,16 +55,22 @@ async function fetchZip(owner: string, repo: string, branch: string): Promise<Ar
 }
 
 const MAX_FILE_BYTES = 8 * 1024 * 1024;
-const SKIP_DIRS = new Set(['.git', 'node_modules']);
+const SKIP_DIRS = new Set(['.git', 'node_modules', 'dist', 'build', '.next', '.nuxt', 'coverage']);
 
 function shouldSkip(path: string): boolean {
-  const parts = path.split('/');
-  return parts.some((p) => SKIP_DIRS.has(p)) || parts.includes('.github') === false && false;
+  return path.split('/').some((p) => SKIP_DIRS.has(p));
 }
 
-export async function loadRepo(input: string): Promise<void> {
+export interface LoadResult {
+  vfs: VfsLike;
+  fileCount: number;
+  totalBytes: number;
+  skipped: number;
+}
+
+export async function loadRepoFiles(input: string): Promise<LoadResult> {
   const ref = parseGitHubUrl(input);
-  if (!ref) throw new Error('Not a GitHub URL — expected https://github.com/owner/repo');
+  if (!ref) throw new Error('Not a GitHub URL — expected https://github.com/owner/repo[/tree/branch/path]');
 
   setState({
     status: 'loading-meta',
@@ -70,7 +82,11 @@ export async function loadRepo(input: string): Promise<void> {
   });
 
   const branch = await resolveBranch(ref.owner, ref.repo, ref.branch);
-  setState({ branch, status: 'loading-zip', statusMessage: `Downloading ${branch} zipball…` });
+  setState({
+    branch,
+    status: 'loading-zip',
+    statusMessage: `Downloading ${branch}${ref.subdir ? `/${ref.subdir}` : ''} zipball…`,
+  });
 
   const zip = await fetchZip(ref.owner, ref.repo, branch);
   setState({ status: 'extracting', statusMessage: 'Extracting into virtual FS…' });
@@ -78,13 +94,19 @@ export async function loadRepo(input: string): Promise<void> {
   const vfs = await resetVfs();
   const files = unzipSync(new Uint8Array(zip));
 
-  // Zip entries are prefixed with a single top-level "repo-branch/" dir.
+  // Zip entries are prefixed with a single top-level "repo-branch/" dir,
+  // then optionally the requested subdirectory.
+  const subPrefix = ref.subdir ? `${ref.subdir}/` : '';
   const entries: { path: string; data: Uint8Array }[] = [];
   let totalBytes = 0;
   let skipped = 0;
   for (const [name, data] of Object.entries(files)) {
     if (data === null) continue; // directory entry
-    const rel = name.replace(/^[^/]+\//, '');
+    let rel = name.replace(/^[^/]+\//, '');
+    if (subPrefix) {
+      if (!rel.startsWith(subPrefix)) continue;
+      rel = rel.slice(subPrefix.length);
+    }
     if (!rel || rel.endsWith('/')) continue;
     if (shouldSkip(rel)) {
       skipped++;
@@ -98,18 +120,34 @@ export async function loadRepo(input: string): Promise<void> {
     entries.push({ path: `/${rel}`, data });
   }
 
+  if (entries.length === 0) {
+    throw new Error(
+      ref.subdir
+        ? `No files found under ${ref.subdir} — check the path or branch`
+        : 'Repository zipball contained no usable files',
+    );
+  }
+
   // Bulk-load into the Rust VFS (single wasm call).
   vfs.load_files(entries);
 
   const walk = vfs.walk();
   setState({
     status: 'ready',
-    statusMessage: `${ref.owner}/${ref.repo}@${branch} — ${entries.length} files${skipped ? ` (${skipped} skipped)` : ''}`,
+    statusMessage: `${ref.owner}/${ref.repo}${ref.subdir ? `/${ref.subdir}` : ''}@${branch} — ${entries.length} files${skipped ? ` (${skipped} skipped)` : ''}`,
     fileCount: entries.length,
     totalBytes,
     tree: walk,
     expanded: new Set(['/']),
     tabs: [],
     activeTab: null,
+    previewUrl: null,
+    previewOpen: false,
   });
+
+  return { vfs, fileCount: entries.length, totalBytes, skipped };
+}
+
+export async function loadRepo(input: string): Promise<void> {
+  await loadRepoFiles(input);
 }
