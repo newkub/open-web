@@ -9,7 +9,7 @@
       "name": "@open-web/landing",
       "version": "0.1.0",
       "dependencies": {
-        "@open-web/theme-bun": "workspace:*",
+        "@wrikka/open-web": "workspace:*",
       },
       "devDependencies": {
         "typescript": "5.9.3",
@@ -75,15 +75,14 @@
         "@codemirror/state": "6.5.2",
         "@codemirror/view": "6.38.6",
         "@lezer/highlight": "1.2.3",
-        "@open-web/diff-bun": "workspace:*",
-        "@open-web/icons-bun": "workspace:*",
-        "@open-web/runtime-bun": "workspace:*",
-        "@open-web/types-bun": "workspace:*",
         "@tanstack/react-store": "0.9.3",
         "@tanstack/store": "0.9.3",
         "@uiw/react-codemirror": "4.25.4",
+        "@vue/compiler-sfc": "3.5.44",
+        "@wrikka/open-web": "workspace:*",
         "@xterm/addon-fit": "0.11.0",
         "@xterm/xterm": "6.0.0",
+        "esbuild-wasm": "0.27.7",
         "fflate": "0.8.2",
         "react": "19.2.4",
         "react-dom": "19.2.4",
@@ -96,34 +95,20 @@
         "vite": "7.3.1",
       },
     },
-    "packages/diff-bun": {
-      "name": "@open-web/diff-bun",
+    "packages/open-web": {
+      "name": "@wrikka/open-web",
       "version": "0.1.0",
       "dependencies": {
-        "@open-web/types-bun": "workspace:*",
         "diff": "9.0.0",
       },
-    },
-    "packages/icons-bun": {
-      "name": "@open-web/icons-bun",
-      "version": "0.1.0",
-    },
-    "packages/runtime-bun": {
-      "name": "@open-web/runtime-bun",
-      "version": "0.1.0",
-      "dependencies": {
-        "@open-web/types-bun": "workspace:*",
+      "peerDependencies": {
         "@vue/compiler-sfc": "3.5.44",
         "esbuild-wasm": "0.27.7",
       },
-    },
-    "packages/theme-bun": {
-      "name": "@open-web/theme-bun",
-      "version": "0.1.0",
-    },
-    "packages/types-bun": {
-      "name": "@open-web/types-bun",
-      "version": "0.1.0",
+      "optionalPeers": [
+        "@vue/compiler-sfc",
+        "esbuild-wasm",
+      ],
     },
   },
   "packages": {
@@ -369,17 +354,7 @@
 
     "@octokit/types": ["@octokit/types@18.0.0", "", { "dependencies": { "@octokit/openapi-types": "^29.0.1" } }, "sha512-l6bAF43PNxkJp6g+W4PjoUSSkxHomXw2nOum5CTftJz1NlV3vu93NImgOYtLf6CbBUb5j+fiuzW0PPQ5JTSvZA=="],
 
-    "@open-web/diff-bun": ["@open-web/diff-bun@workspace:packages/diff-bun"],
-
-    "@open-web/icons-bun": ["@open-web/icons-bun@workspace:packages/icons-bun"],
-
     "@open-web/landing": ["@open-web/landing@workspace:apps/landing"],
-
-    "@open-web/runtime-bun": ["@open-web/runtime-bun@workspace:packages/runtime-bun"],
-
-    "@open-web/theme-bun": ["@open-web/theme-bun@workspace:packages/theme-bun"],
-
-    "@open-web/types-bun": ["@open-web/types-bun@workspace:packages/types-bun"],
 
     "@open-web/web": ["@open-web/web@workspace:apps/web"],
 
@@ -714,6 +689,8 @@
     "@vue/compiler-ssr": ["@vue/compiler-ssr@3.5.44", "", { "dependencies": { "@vue/compiler-dom": "3.5.44", "@vue/shared": "3.5.44" } }, "sha512-xr5gb1JVHlfXJwSlRz1FeP6uxoazdzHuMTVLE7up+4Vrqxk219CvxLPxD9NXBt47yvZW7+p4DXfyp4O1fkByIA=="],
 
     "@vue/shared": ["@vue/shared@3.5.44", "", {}, "sha512-H82XLH0DjmSOdbEwO15x3QTo1f5PWEtv237eLpYKc0mqLu+B8hnq16lFWmuBmNurkeiG3wr+oM1FhOll/YVFRg=="],
+
+    "@wrikka/open-web": ["@wrikka/open-web@workspace:packages/open-web"],
 
     "@xterm/addon-fit": ["@xterm/addon-fit@0.11.0", "", {}, "sha512-jYcgT6xtVYhnhgxh3QgYDnnNMYTcf8ElbxxFzX0IZo+vabQqSPAjC3c1wJrKB5E19VwQei89QCiZZP86DCPF7g=="],
 

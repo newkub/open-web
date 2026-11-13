@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { iconFileFor } from '@open-web/icons-bun';
+import { iconFileFor } from '@wrikka/open-web/icons';
 
 export { iconFileFor };
 

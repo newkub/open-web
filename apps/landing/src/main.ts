@@ -1,4 +1,4 @@
-import '@open-web/theme-bun/tokens.css';
+import '@wrikka/open-web/theme/tokens.css';
 import './style.css';
 
 const APP_URL = 'https://stackbox.newkubise.workers.dev';

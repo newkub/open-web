@@ -11,7 +11,7 @@ import { QuickOpen } from './components/QuickOpen';
 import { PreviewPane } from './components/PreviewPane';
 import { DiffView } from './components/DiffView';
 import { FileBrowser } from './components/FileBrowser';
-import { detectProject, previewProject, initBundler } from '@open-web/runtime-bun';
+import { detectProject, previewProject, initBundler } from '@wrikka/open-web/runtime';
 import { getVfs } from './vfs';
 import { termWrite } from './termBus';
 import { requestSave } from './editorBus';

@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@open-web/theme-bun": "workspace:*"
+    "@wrikka/open-web": "workspace:*"
   },
   "devDependencies": {
     "typescript": "5.9.3",

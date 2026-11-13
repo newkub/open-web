@@ -1,5 +1,5 @@
 import { getVfs, readTextFile } from './vfs';
-import { runFile, previewProject, detectProject } from '@open-web/runtime-bun';
+import { runFile, previewProject, detectProject } from '@wrikka/open-web/runtime';
 import { setState } from './store';
 
 // Virtual shell layered on the shared VFS, now with real execution:

@@ -1,0 +1,55 @@
+{
+  "name": "@wrikka/open-web",
+  "version": "0.1.0",
+  "description": "In-browser IDE runtime libraries — VFS types, unified-diff parsing, material file icons, esbuild-wasm bundler + preview, shared theme tokens",
+  "type": "module",
+  "main": "./dist/types.js",
+  "types": "./dist/types.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types.d.ts",
+      "default": "./dist/types.js"
+    },
+    "./types": {
+      "types": "./dist/types.d.ts",
+      "default": "./dist/types.js"
+    },
+    "./diff": {
+      "types": "./dist/diff/index.d.ts",
+      "default": "./dist/diff/index.js"
+    },
+    "./icons": {
+      "types": "./dist/icons/index.d.ts",
+      "default": "./dist/icons/index.js"
+    },
+    "./icons/mit-map.json": "./dist/icons/mit-map.json",
+    "./runtime": {
+      "types": "./dist/runtime/index.d.ts",
+      "default": "./dist/runtime/index.js"
+    },
+    "./theme/tokens.css": "./src/theme/tokens.css"
+  },
+  "files": ["dist", "src/theme"],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json && bun -e \"await Bun.write('dist/icons/mit-map.json', await Bun.file('src/icons/mit-map.json').text())\""
+  },
+  "dependencies": {
+    "diff": "9.0.0"
+  },
+  "peerDependencies": {
+    "@vue/compiler-sfc": "3.5.44",
+    "esbuild-wasm": "0.27.7"
+  },
+  "peerDependenciesMeta": {
+    "@vue/compiler-sfc": { "optional": true },
+    "esbuild-wasm": { "optional": true }
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/newkub/open-web.git"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

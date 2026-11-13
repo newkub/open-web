@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useStore } from '@tanstack/react-store';
-import { pairChangedLines, type DiffFile, type DiffHunk, type DiffLine, type TokenPart } from '@open-web/diff-bun';
+import { pairChangedLines, type DiffFile, type DiffHunk, type DiffLine, type TokenPart } from '@wrikka/open-web/diff';
 import { projectStore } from '../store';
 import { FileIcon } from '../icons';
 

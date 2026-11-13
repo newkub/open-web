@@ -1,7 +1,7 @@
 import * as esbuild from 'esbuild-wasm';
 import wasmUrl from 'esbuild-wasm/esbuild.wasm?url';
 import type { Plugin, Loader } from 'esbuild-wasm';
-import type { VfsLike } from '@open-web/types-bun';
+import type { VfsLike } from '../types';
 import { detectProject } from './detect';
 import { esmUrl } from './esm';
 import { shimSource } from './shims';

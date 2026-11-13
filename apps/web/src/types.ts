@@ -1,2 +1,2 @@
-// Re-export shared types — single source lives in @open-web/types-bun.
-export * from '@open-web/types-bun';
+// Re-export shared types — single source lives in @wrikka/open-web/types.
+export * from '@wrikka/open-web/types';

@@ -1,6 +1,6 @@
 import { setState } from './store';
 import type { PrInfo } from './store';
-import { parseDiff, type DiffFile } from '@open-web/diff-bun';
+import { parseDiff, type DiffFile } from '@wrikka/open-web/diff';
 import { authHeaders } from './githubAuth';
 
 export interface PrRef {
