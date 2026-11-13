@@ -97,6 +97,18 @@ export function FileTree() {
         activeTab: s.activeTab === entry.path ? to : s.activeTab,
       }));
       await refreshTree();
+    } else if (action === 'newfile') {
+      const dir = entry.is_dir ? entry.path : entry.path.slice(0, entry.path.lastIndexOf('/')) || '/';
+      const name = prompt('New file name:', 'untitled.txt');
+      if (!name) return;
+      const to = `${dir === '/' ? '' : dir}/${name}`;
+      if (vfs.exists(to)) {
+        alert('A file with that name already exists');
+        return;
+      }
+      vfs.write_file(to, new TextEncoder().encode(''));
+      await refreshTree();
+      openFile(to);
     } else if (action === 'delete') {
       if (!confirm(`Delete ${entry.path}${entry.is_dir ? ' (and contents)' : ''}?`)) return;
       vfs.delete_file(entry.path);
@@ -106,7 +118,18 @@ export function FileTree() {
   };
 
   return (
-    <div className="filetree">
+    <div
+      className="filetree"
+      onContextMenu={(e) => {
+        if (e.target !== e.currentTarget) return;
+        e.preventDefault();
+        setMenu({
+          x: e.clientX,
+          y: e.clientY,
+          entry: { path: '/', name: '(root)', is_dir: true, size: 0 },
+        });
+      }}
+    >
       {nodes.length === 0 && <div className="tree-empty">No project loaded</div>}
       {nodes.map(({ entry, depth }, i) => (
         <div
@@ -119,6 +142,7 @@ export function FileTree() {
           }}
           onContextMenu={(e) => {
             e.preventDefault();
+            e.stopPropagation();
             setMenu({ x: e.clientX, y: e.clientY, entry });
           }}
           title={entry.path}
@@ -136,7 +160,10 @@ export function FileTree() {
         <div
           ref={menuRef}
           className="ctx-menu"
-          style={{ left: menu.x, top: menu.y }}
+          style={{
+            left: Math.min(menu.x, window.innerWidth - 190),
+            top: Math.min(menu.y, window.innerHeight - 210),
+          }}
           onClick={(e) => e.stopPropagation()}
         >
           {[
@@ -144,6 +171,7 @@ export function FileTree() {
             ['copy', 'Copy path'],
             ['download', 'Download'],
             ['rename', 'Rename…'],
+            ['newfile', 'New file…'],
             ['delete', 'Delete'],
           ].map(([action, label]) => (
             <button

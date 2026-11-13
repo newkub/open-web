@@ -24,8 +24,16 @@ export function QuickOpen() {
   const results = useMemo(() => {
     const q = query.toLowerCase();
     if (!q) return files.slice(0, 50);
+    const score = (f: FileEntry): number => {
+      const name = f.name.toLowerCase();
+      if (name === q) return 0;
+      if (name.startsWith(q)) return 1;
+      if (name.includes(q)) return 2;
+      return 3;
+    };
     return files
       .filter((f) => f.path.toLowerCase().includes(q) || f.name.toLowerCase().includes(q))
+      .sort((a, b) => score(a) - score(b) || a.path.localeCompare(b.path))
       .slice(0, 50);
   }, [files, query]);
 

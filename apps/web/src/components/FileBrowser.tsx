@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useStore } from '@tanstack/react-store';
-import { projectStore, openFile } from '../store';
+import { projectStore, openFile, setState } from '../store';
 import { FileIcon } from '../icons';
 import type { FileEntry } from '../types';
 
@@ -31,6 +31,7 @@ export function FileBrowser() {
       if (!map.has(top)) map.set(top, { name: top, path: dirPath, files: [] });
       map.get(top)!.files.push(f);
     }
+    for (const g of map.values()) g.files.sort((a, b) => a.name.localeCompare(b.name));
     return [...map.values()].sort((a, b) =>
       a.name === '(root)' ? -1 : b.name === '(root)' ? 1 : a.name.localeCompare(b.name),
     );
@@ -46,6 +47,7 @@ export function FileBrowser() {
           placeholder={`Search ${fileCount} files…`}
           value={q}
           onChange={(e) => setQ(e.target.value)}
+          onKeyDown={(e) => e.key === 'Escape' && setQ('')}
           autoFocus
         />
         <span className="fb-meta">
@@ -55,7 +57,15 @@ export function FileBrowser() {
       <div className="fb-groups">
         {groups.map((g, gi) => (
           <section key={g.name} className="fb-group" style={{ animationDelay: `${Math.min(gi * 40, 400)}ms` }}>
-            <header className="fb-group-head">
+            <header
+              className="fb-group-head"
+              title="Reveal in explorer"
+              onClick={() => {
+                const next = new Set(projectStore.state.expanded);
+                next.add(g.path);
+                setState({ expanded: next });
+              }}
+            >
               <FileIcon path={g.path + (g.name === '(root)' ? '' : '/')} isDir size={15} />
               <span className="fb-group-name">{g.name === '(root)' ? 'root' : g.name}</span>
               <span className="fb-count">{g.files.length}</span>
@@ -66,6 +76,7 @@ export function FileBrowser() {
                   <FileIcon path={f.path} size={14} />
                   <span className="fb-file-name">{f.name}</span>
                   <span className="fb-file-path">{f.path}</span>
+                  {f.size > 0 && <span className="fb-file-size">{formatSize(f.size)}</span>}
                 </button>
               ))}
             </div>
@@ -78,4 +89,10 @@ export function FileBrowser() {
       {q && <div className="fb-foot">{shown} of {fileCount} files</div>}
     </div>
   );
+}
+
+function formatSize(n: number): string {
+  if (n < 1024) return `${n}B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)}K`;
+  return `${(n / 1024 / 1024).toFixed(1)}M`;
 }
