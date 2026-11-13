@@ -18,6 +18,7 @@ export function Welcome() {
         <p className="welcome-sub">
           Paste a GitHub URL above to open a project — files load into a Rust/WASM
           virtual filesystem, edit in place, and explore from the terminal.
+          Paste a <code>…/pull/N</code> URL for an interactive diff view.
         </p>
         <div className="welcome-examples">
           <div className="examples-title">Try an example</div>

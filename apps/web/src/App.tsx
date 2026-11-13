@@ -9,6 +9,7 @@ import { StatusBar } from './components/StatusBar';
 import { Welcome } from './components/Welcome';
 import { QuickOpen } from './components/QuickOpen';
 import { PreviewPane } from './components/PreviewPane';
+import { DiffView } from './components/DiffView';
 import { previewProject } from './runtime/preview';
 import { requestSave } from './editorBus';
 
@@ -16,6 +17,7 @@ export function App() {
   const terminalOpen = useStore(projectStore, (s) => s.terminalOpen);
   const tree = useStore(projectStore, (s) => s.tree);
   const activeTab = useStore(projectStore, (s) => s.activeTab);
+  const mode = useStore(projectStore, (s) => s.mode);
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   // Global shortcuts: Ctrl+` terminal, Ctrl+S save, Ctrl+P quick open.
@@ -38,21 +40,24 @@ export function App() {
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
-  const hasProject = tree.length > 0;
+  const hasProject = tree.length > 0 || mode === 'pr';
   const showWelcome = !hasProject;
+  const isPr = mode === 'pr';
 
   return (
     <div className="app">
       <TopBar onMenu={() => setSidebarOpen((v) => !v)} />
       <div className="main">
-        <button
-          className={`sidebar-toggle ${sidebarOpen ? 'hidden' : ''}`}
-          onClick={() => setSidebarOpen(true)}
-          aria-label="Show files"
-        >
-          ☰
-        </button>
-        {sidebarOpen && (
+        {!isPr && (
+          <button
+            className={`sidebar-toggle ${sidebarOpen ? 'hidden' : ''}`}
+            onClick={() => setSidebarOpen(true)}
+            aria-label="Show files"
+          >
+            ☰
+          </button>
+        )}
+        {sidebarOpen && !isPr && (
           <>
             <div className="sidebar-backdrop" onClick={() => setSidebarOpen(false)} />
             <aside className="sidebar">
@@ -67,7 +72,9 @@ export function App() {
           </>
         )}
         <section className="workarea">
-          {showWelcome ? (
+          {isPr ? (
+            <DiffView />
+          ) : showWelcome ? (
             <Welcome />
           ) : activeTab ? (
             <EditorPane />
@@ -77,21 +84,25 @@ export function App() {
               <span className="editor-hint">or press Ctrl+P to quick-open</span>
             </div>
           )}
-          <div className="terminal-bar">
-            <button onClick={() => setState({ terminalOpen: !terminalOpen })}>
-              {terminalOpen ? '▾ Hide terminal' : '▸ Show terminal'}
-            </button>
-            <button
-              className="preview-btn"
-              disabled={!hasProject}
-              onClick={() => void previewProject((m) => console.log(m)).catch((e) => alert(e.message))}
-            >
-              ▶ Preview
-            </button>
-            <span className="terminal-hint">Ctrl+` · run/preview in terminal</span>
-          </div>
-          <TerminalPane />
-          <PreviewPane />
+          {!isPr && (
+            <>
+              <div className="terminal-bar">
+                <button onClick={() => setState({ terminalOpen: !terminalOpen })}>
+                  {terminalOpen ? '▾ Hide terminal' : '▸ Show terminal'}
+                </button>
+                <button
+                  className="preview-btn"
+                  disabled={!hasProject}
+                  onClick={() => void previewProject((m) => console.log(m)).catch((e) => alert(e.message))}
+                >
+                  ▶ Preview
+                </button>
+                <span className="terminal-hint">Ctrl+` · run/preview in terminal</span>
+              </div>
+              <TerminalPane />
+              <PreviewPane />
+            </>
+          )}
         </section>
       </div>
       <StatusBar />

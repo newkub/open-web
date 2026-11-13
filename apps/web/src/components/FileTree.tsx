@@ -1,5 +1,6 @@
 import { useStore } from '@tanstack/react-store';
 import { projectStore, toggleExpanded, openFile } from '../store';
+import { FileIcon } from '../icons';
 import type { FileEntry } from '../types';
 
 interface Node {
@@ -28,7 +29,8 @@ export function FileTree() {
           }}
           title={entry.path}
         >
-          <span className="twisty">{entry.is_dir ? (expanded.has(entry.path) ? '▾' : '▸') : '·'}</span>
+          <span className="twisty">{entry.is_dir ? (expanded.has(entry.path) ? '▾' : '▸') : ''}</span>
+          <FileIcon path={entry.path} isDir={entry.is_dir} size={entry.is_dir ? 14 : 15} />
           <span className="name">{entry.name}</span>
           {!entry.is_dir && entry.size > 0 && <span className="size">{formatSize(entry.size)}</span>}
         </div>

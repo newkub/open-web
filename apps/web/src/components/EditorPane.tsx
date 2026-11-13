@@ -14,6 +14,7 @@ import { xml } from '@codemirror/lang-xml';
 import { yaml } from '@codemirror/lang-yaml';
 import { useStore } from '@tanstack/react-store';
 import { projectStore, closeTab, markDirty } from '../store';
+import { FileIcon } from '../icons';
 import { getVfs } from '../vfs';
 import { registerSaver } from '../editorBus';
 import type { Extension } from '@codemirror/state';
@@ -127,6 +128,7 @@ export function EditorPane() {
             onClick={() => projectStore.setState((s) => ({ ...s, activeTab: t.path }))}
             title={t.path}
           >
+            <FileIcon path={t.path} size={13} />
             {t.path.split('/').pop()}
             {t.dirty && <span className="dirty">●</span>}
             <span

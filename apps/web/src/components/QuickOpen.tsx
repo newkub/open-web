@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useStore } from '@tanstack/react-store';
 import { projectStore, openFile, setState } from '../store';
+import { FileIcon } from '../icons';
 import { getVfs } from '../vfs';
 import type { FileEntry } from '../types';
 
@@ -60,6 +61,7 @@ export function QuickOpen() {
               onMouseEnter={() => setIndex(i)}
               onClick={() => pick(f.path)}
             >
+              <FileIcon path={f.path} size={14} />
               <span className="qo-name">{f.name}</span>
               <span className="qo-path">{f.path}</span>
             </button>

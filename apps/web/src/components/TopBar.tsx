@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useStore } from '@tanstack/react-store';
 import { projectStore, setState } from '../store';
-import { loadRepo } from '../github';
+import { loadRepo, loadPr, parsePrUrl } from '../github';
 
 const LS_KEY = 'stackbox:last-url';
 
@@ -24,7 +24,8 @@ export function TopBar({ onMenu }: { onMenu: () => void }) {
     localStorage.setItem(LS_KEY, value);
     setUrl(value);
     try {
-      await loadRepo(value);
+      if (parsePrUrl(value)) await loadPr(value);
+      else await loadRepo(value);
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
       setState({ status: 'error', statusMessage: 'Failed to load repo' });
@@ -53,7 +54,7 @@ export function TopBar({ onMenu }: { onMenu: () => void }) {
         <input
           value={url}
           onChange={(e) => setUrl(e.target.value)}
-          placeholder="https://github.com/owner/repo"
+          placeholder="https://github.com/owner/repo or …/pull/N"
           spellCheck={false}
           aria-label="GitHub repository URL"
         />

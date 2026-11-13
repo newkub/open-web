@@ -8,6 +8,21 @@ export interface OpenTab {
   dirty: boolean;
 }
 
+export interface PrInfo {
+  owner: string;
+  repo: string;
+  number: number;
+  title: string;
+  author: string;
+  url: string;
+  additions: number;
+  deletions: number;
+  changedFiles: number;
+  baseRef: string;
+  headRef: string;
+  state: string;
+}
+
 export interface ProjectState {
   repoUrl: string;
   owner: string;
@@ -26,6 +41,11 @@ export interface ProjectState {
   previewOpen: boolean;
   previewUrl: string | null;
   previewTitle: string;
+  mode: 'repo' | 'pr';
+  pr: PrInfo | null;
+  prDiff: import('./diff/parse').DiffFile[] | null;
+  prStatus: LoadStatus;
+  prMessage: string;
 }
 
 const initial: ProjectState = {
@@ -46,6 +66,11 @@ const initial: ProjectState = {
   previewOpen: false,
   previewUrl: null,
   previewTitle: '',
+  mode: 'repo',
+  pr: null,
+  prDiff: null,
+  prStatus: 'idle',
+  prMessage: '',
 };
 
 export const projectStore = new Store<ProjectState>(initial);
