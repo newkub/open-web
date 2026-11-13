@@ -2,7 +2,6 @@ import '@wrikka/open-web/theme/tokens.css';
 import './style.css';
 
 const APP_URL = 'https://open-web.newkubise.workers.dev/app';
-const LANDING_URL = 'https://open-web-landing.newkubise.workers.dev';
 const REPO_URL = 'https://github.com/newkub/open-web';
 
 const features = [
@@ -120,7 +119,6 @@ open-in-web diff ui https://a.dev https://b.dev</code></pre>
 
 <footer>
   <span>open-web · MIT · <a href="${REPO_URL}">newkub/open-web</a> ·
-  <a href="${LANDING_URL}">landing</a> ·
   <a href="${APP_URL}">app</a></span>
 </footer>
 `;
