@@ -6,3 +6,4 @@ target/
 *.local
 .DS_Store
 apps/web/public/wasm/
+dist-site/

@@ -56,6 +56,10 @@ export default {
     if (url.pathname.startsWith('/api/')) {
       return proxyGithub(request, env);
     }
+    // IDE SPA fallback: extensionless /app/* paths serve the app shell.
+    if (url.pathname.startsWith('/app') && !/\.[a-zA-Z0-9]+$/.test(url.pathname)) {
+      return env.ASSETS.fetch(new URL('/app/index.html', url.origin).toString());
+    }
     return env.ASSETS.fetch(request);
   },
 } satisfies ExportedHandler<Env>;

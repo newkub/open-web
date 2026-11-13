@@ -15,7 +15,7 @@ export async function getVfs(): Promise<VfsLike> {
   if (instance) return instance;
   // Static asset served from /wasm (public dir); @vite-ignore keeps the
   // specifier out of the bundle graph — the glue fetches its .wasm itself.
-  const spec = '/wasm/open_web_wasm.js';
+  const spec = `${import.meta.env.BASE_URL}wasm/open_web_wasm.js`;
   const mod = (await import(/* @vite-ignore */ spec)) as WasmModule;
   await mod.default();
   instance = new mod.WebVfs();

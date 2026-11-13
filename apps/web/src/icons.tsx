@@ -22,7 +22,7 @@ export function FileIcon({
   return (
     <img
       className={`fileicon ${className}`}
-      src={`/mit-icons/${file}`}
+      src={`${import.meta.env.BASE_URL}mit-icons/${file}`}
       width={size}
       height={size}
       alt=""

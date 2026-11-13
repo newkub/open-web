@@ -1,7 +1,7 @@
 import '@wrikka/open-web/theme/tokens.css';
 import './style.css';
 
-const APP_URL = 'https://open-web.newkubise.workers.dev';
+const APP_URL = 'https://open-web.newkubise.workers.dev/app';
 const LANDING_URL = 'https://open-web-landing.newkubise.workers.dev';
 const REPO_URL = 'https://github.com/newkub/open-web';
 
