@@ -31,10 +31,15 @@ export async function previewProject(
   });
 
   const safeCode = code.replace(/<\/script/gi, '<\\/script');
+  const errOverlay = `<script>
+addEventListener('error',function(e){document.body.innerHTML='<pre style="color:#ff7b72;background:#0d1117;padding:16px;font:12px/1.5 ui-monospace,Consolas,monospace;white-space:pre-wrap;word-break:break-all">Runtime error: '+(e.error&&(e.error.stack||e.error.message)||e.message)+'</pre>'});
+addEventListener('unhandledrejection',function(e){document.body.innerHTML='<pre style="color:#ff7b72;background:#0d1117;padding:16px;font:12px/1.5 ui-monospace,Consolas,monospace;white-space:pre-wrap;word-break:break-all">Unhandled rejection: '+((e.reason&&(e.reason.stack||e.reason.message))||e.reason)+'</pre>'});
+</script>`;
   const html = `<!doctype html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 ${css ? `<style>${css.replace(/<\/style/gi, '<\\/style')}</style>` : ''}
 </head><body><div id="root"></div><div id="app"></div>
+${errOverlay}
 <script type="module">${safeCode}</script></body></html>`;
 
   const url = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
