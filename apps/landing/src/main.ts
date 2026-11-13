@@ -1,7 +1,7 @@
 import '@wrikka/open-web/theme/tokens.css';
 import './style.css';
 
-const APP_URL = 'https://stackbox.newkubise.workers.dev';
+const APP_URL = 'https://open-web.newkubise.workers.dev';
 
 const features = [
   ['⬒', 'GitHub in, IDE out', 'Paste any public repo URL — file tree, editor, and terminal appear instantly. Rust/WASM virtual filesystem is the single source of truth.'],
