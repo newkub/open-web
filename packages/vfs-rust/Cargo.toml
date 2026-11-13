@@ -4,6 +4,7 @@ description = "Virtual filesystem shared by editor, shell, git and runtime layer
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+repository.workspace = true
 
 [dependencies]
 serde.workspace = true

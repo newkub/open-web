@@ -4,6 +4,7 @@ description = "Shared message types between web UI, wasm core and runtimes"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+repository.workspace = true
 
 [dependencies]
 serde.workspace = true
