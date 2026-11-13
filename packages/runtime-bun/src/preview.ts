@@ -9,6 +9,28 @@ export interface PreviewResult {
   entry: string;
 }
 
+// Dedicated preview origin: a real https URL keeps history routers working
+// (blob: documents can't history.replaceState and expose a '/<uuid>' path)
+// and isolates previewed repo code from the app origin's localStorage.
+const PREVIEW_ORIGIN = 'https://open-web-preview.newkubise.workers.dev';
+// Stay well under browser URL-length limits (~2MB) for the fragment payload.
+const MAX_PAYLOAD_B64 = 1_800_000;
+
+async function encodePayload(html: string): Promise<string | null> {
+  try {
+    const stream = new Blob([html]).stream().pipeThrough(new CompressionStream('gzip'));
+    const buf = new Uint8Array(await new Response(stream).arrayBuffer());
+    let bin = '';
+    for (let i = 0; i < buf.length; i += 0x8000) {
+      bin += String.fromCharCode(...buf.subarray(i, i + 0x8000));
+    }
+    const b64 = btoa(bin);
+    return b64.length <= MAX_PAYLOAD_B64 ? b64 : null;
+  } catch {
+    return null;
+  }
+}
+
 /**
  * "Vite dev server in a tab": bundle the detected app entry with esbuild
  * (deps resolved from esm.sh, .vue SFCs compiled, JSX transformed), wrap
@@ -47,6 +69,9 @@ ${urlFix}
 ${errOverlay}
 <script type="module">${safeCode}</script></body></html>`;
 
-  const url = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
+  const payload = await encodePayload(html);
+  const url = payload
+    ? `${PREVIEW_ORIGIN}/#${payload}`
+    : URL.createObjectURL(new Blob([html], { type: 'text/html' }));
   return { url, title: `${info.framework} preview`, framework: info.framework, entry: info.entry };
 }
