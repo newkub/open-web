@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useStore } from '@tanstack/react-store';
-import { projectStore, toggleExpanded, openFile, setState, closeTab } from '../store';
+import { projectStore, toggleExpanded, openFile, setState, closeTab, notify } from '../store';
 import { FileIcon } from '../icons';
 import { getVfs } from '../vfs';
 import type { FileEntry } from '../types';
@@ -87,7 +87,7 @@ export function FileTree() {
       const dir = entry.path.slice(0, entry.path.lastIndexOf('/')) || '/';
       const to = `${dir === '/' ? '' : dir}/${next}`;
       if (!vfs.rename(entry.path, to)) {
-        alert('Rename failed — name may already exist');
+        notify('Rename failed — name may already exist');
         return;
       }
       // Remap open tabs pointing at the old path.
@@ -103,7 +103,7 @@ export function FileTree() {
       if (!name) return;
       const to = `${dir === '/' ? '' : dir}/${name}`;
       if (vfs.exists(to)) {
-        alert('A file with that name already exists');
+        notify('A file with that name already exists');
         return;
       }
       vfs.write_file(to, new TextEncoder().encode(''));

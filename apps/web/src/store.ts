@@ -52,6 +52,8 @@ export interface ProjectState {
   autoDev: boolean;
   /** repoUrl that already auto-started (run once per load). */
   autoDevFor: string | null;
+  /** Transient toast message (errors, confirmations). */
+  notice: string | null;
 }
 
 const initial: ProjectState = {
@@ -81,12 +83,17 @@ const initial: ProjectState = {
   prMessage: '',
   autoDev: true,
   autoDevFor: null,
+  notice: null,
 };
 
 export const projectStore = new Store<ProjectState>(initial);
 
 export function setState(patch: Partial<ProjectState>) {
   projectStore.setState((s) => ({ ...s, ...patch }));
+}
+
+export function notify(message: string) {
+  setState({ notice: message });
 }
 
 export function toggleExpanded(path: string) {

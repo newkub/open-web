@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useStore } from '@tanstack/react-store';
-import { projectStore, setState } from './store';
+import { projectStore, setState, notify } from './store';
 import { TopBar } from './components/TopBar';
 import { FileTree } from './components/FileTree';
 import { EditorPane } from './components/EditorPane';
@@ -25,7 +25,15 @@ export function App() {
   const autoDev = useStore(projectStore, (s) => s.autoDev);
   const autoDevFor = useStore(projectStore, (s) => s.autoDevFor);
   const repoUrl = useStore(projectStore, (s) => s.repoUrl);
+  const notice = useStore(projectStore, (s) => s.notice);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  // Toast auto-dismiss.
+  useEffect(() => {
+    if (!notice) return;
+    const t = setTimeout(() => setState({ notice: null }), 5000);
+    return () => clearTimeout(t);
+  }, [notice]);
 
   // Global shortcuts: Ctrl+` terminal, Ctrl+S save, Ctrl+P quick open.
   useEffect(() => {
@@ -151,7 +159,7 @@ export function App() {
                         const r = await previewProject(vfs, (m) => console.log(m));
                         setState({ previewUrl: r.url, previewOpen: true, previewTitle: r.title });
                       })
-                      .catch((e) => alert(e.message))
+                      .catch((e) => notify(`Preview failed: ${e instanceof Error ? e.message : e}`))
                   }
                 >
                   ▶ Preview
@@ -166,6 +174,15 @@ export function App() {
       </div>
       <StatusBar />
       <QuickOpen />
+      {notice && (
+        <button
+          className="toast"
+          role="status"
+          onClick={() => setState({ notice: null })}
+        >
+          {notice}
+        </button>
+      )}
     </div>
   );
 }
