@@ -10,8 +10,8 @@ name = "open_web_wasm"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-vfs-rust = { path = "../vfs-rust" }
-protocol-rust = { path = "../protocol-rust" }
+vfs-rust = { path = "../vfs-rust", version = "0.1.0" }
+protocol-rust = { path = "../protocol-rust", version = "0.1.0" }
 serde.workspace = true
 wasm-bindgen.workspace = true
 serde-wasm-bindgen.workspace = true
