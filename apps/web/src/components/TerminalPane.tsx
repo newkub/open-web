@@ -1,9 +1,11 @@
 import { useEffect, useRef } from 'react';
+import { useStore } from '@tanstack/react-store';
 import { Terminal } from '@xterm/xterm';
 import { FitAddon } from '@xterm/addon-fit';
 import '@xterm/xterm/css/xterm.css';
 import { runShellLine, complete, getCwd } from '../shell';
 import { projectStore } from '../store';
+import { setTermWriter } from '../termBus';
 
 function prompt(write: (s: string) => void) {
   const cwd = getCwd();
@@ -13,7 +15,8 @@ function prompt(write: (s: string) => void) {
 export function TerminalPane() {
   const hostRef = useRef<HTMLDivElement>(null);
   const termRef = useRef<Terminal | null>(null);
-  const open = projectStore.state.terminalOpen;
+  const fitRef = useRef<FitAddon | null>(null);
+  const open = useStore(projectStore, (s) => s.terminalOpen);
 
   useEffect(() => {
     if (!hostRef.current || termRef.current) return;
@@ -31,11 +34,13 @@ export function TerminalPane() {
     });
     const fit = new FitAddon();
     term.loadAddon(fit);
+    fitRef.current = fit;
     term.open(hostRef.current);
     fit.fit();
     termRef.current = term;
 
     const write = (s: string) => term.write(s);
+    setTermWriter(write);
     write('\x1b[1;36mstackbox shell\x1b[0m — type `help`. `run <file>` executes JS, `preview` bundles the app.\r\n\r\n');
     prompt(write);
 
@@ -113,15 +118,21 @@ export function TerminalPane() {
     ro.observe(hostRef.current);
     return () => {
       ro.disconnect();
+      setTermWriter(null);
       term.dispose();
       termRef.current = null;
     };
   }, []);
 
   useEffect(() => {
-    if (open) requestAnimationFrame(() => termRef.current?.focus());
+    if (!open) return;
+    requestAnimationFrame(() => {
+      fitRef.current?.fit();
+      termRef.current?.focus();
+    });
   }, [open]);
 
-  if (!open) return null;
-  return <div className="terminal-pane" ref={hostRef} />;
+  // Keep the host mounted (hidden when closed) so the xterm instance
+  // survives toggle — unmounting it would destroy the terminal.
+  return <div className="terminal-pane" ref={hostRef} style={{ display: open ? 'block' : 'none' }} />;
 }

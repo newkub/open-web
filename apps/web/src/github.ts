@@ -1,5 +1,6 @@
 import { unzipSync } from 'fflate';
 import { getVfs, resetVfs } from './vfs';
+import { cacheGet, cacheSet } from './zipCache';
 import { setState } from './store';
 import type { PrInfo } from './store';
 import { parseDiff, type DiffFile } from './diff/parse';
@@ -146,18 +147,70 @@ export async function resolveBranch(owner: string, repo: string, hint: string): 
   return data.default_branch;
 }
 
+function formatMB(bytes: number): string {
+  return `${(bytes / 1024 / 1024).toFixed(1)}MB`;
+}
+
 // The codeload zip endpoint does not send CORS headers for arbitrary
 // origins, so downloads go through a same-origin proxy: vite dev proxy in
 // development, the /api route on the Cloudflare worker in production.
 // Path mirrors codeload: /api/{owner}/{repo}/zip/refs/heads/{branch}
-async function fetchZip(owner: string, repo: string, branch: string): Promise<ArrayBuffer> {
+// Zips are cached in IndexedDB — repeat loads of the same ref skip
+// the network entirely.
+async function fetchZip(
+  owner: string,
+  repo: string,
+  branch: string,
+): Promise<ArrayBuffer> {
+  const cacheKey = `zip:${owner}/${repo}@${branch}`;
+  const cached = await cacheGet(cacheKey);
+  if (cached) {
+    setState({ loadBytes: cached.byteLength, loadTotal: cached.byteLength });
+    return cached;
+  }
+
   const url = `/api/${owner}/${repo}/zip/refs/heads/${branch}`;
   const res = await fetch(url);
   if (!res.ok) {
     const text = await res.text().catch(() => '');
     throw new Error(`zip download failed (${res.status}): ${text.slice(0, 200)}`);
   }
-  return res.arrayBuffer();
+
+  const total = Number(res.headers.get('content-length') ?? 0);
+  if (!res.body) return res.arrayBuffer();
+
+  const reader = res.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let received = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    chunks.push(value);
+    received += value.length;
+    if (total > 0) {
+      setState({
+        loadBytes: received,
+        loadTotal: total,
+        statusMessage: `Downloading zipball — ${formatMB(received)} / ${formatMB(total)}`,
+      });
+    } else {
+      setState({
+        loadBytes: received,
+        loadTotal: 0,
+        statusMessage: `Downloading zipball — ${formatMB(received)}`,
+      });
+    }
+  }
+
+  const buf = new Uint8Array(received);
+  let off = 0;
+  for (const c of chunks) {
+    buf.set(c, off);
+    off += c.length;
+  }
+  const ab = buf.buffer as ArrayBuffer;
+  void cacheSet(cacheKey, ab);
+  return ab;
 }
 
 const MAX_FILE_BYTES = 8 * 1024 * 1024;
@@ -185,6 +238,9 @@ export async function loadRepoFiles(input: string): Promise<LoadResult> {
     owner: ref.owner,
     repo: ref.repo,
     branch: ref.branch,
+    loadBytes: 0,
+    loadTotal: 0,
+    autoDevFor: null,
   });
 
   const branch = await resolveBranch(ref.owner, ref.repo, ref.branch);
@@ -192,20 +248,38 @@ export async function loadRepoFiles(input: string): Promise<LoadResult> {
     branch,
     status: 'loading-zip',
     statusMessage: `Downloading ${branch}${ref.subdir ? `/${ref.subdir}` : ''} zipball…`,
+    loadBytes: 0,
+    loadTotal: 0,
   });
 
   const zip = await fetchZip(ref.owner, ref.repo, branch);
   setState({ status: 'extracting', statusMessage: 'Extracting into virtual FS…' });
 
   const vfs = await resetVfs();
-  const files = unzipSync(new Uint8Array(zip));
 
   // Zip entries are prefixed with a single top-level "repo-branch/" dir,
-  // then optionally the requested subdirectory.
+  // then optionally the requested subdirectory. The filter runs before
+  // decompression, so skipped dirs and oversized files cost ~nothing.
   const subPrefix = ref.subdir ? `${ref.subdir}/` : '';
+  let skipped = 0;
+  const files = unzipSync(new Uint8Array(zip), {
+    filter: (f) => {
+      let rel = f.name.replace(/^[^/]+\//, '');
+      if (subPrefix) {
+        if (!rel.startsWith(subPrefix)) return false;
+        rel = rel.slice(subPrefix.length);
+      }
+      if (!rel || rel.endsWith('/')) return false;
+      if (shouldSkip(rel) || f.originalSize > MAX_FILE_BYTES) {
+        skipped++;
+        return false;
+      }
+      return true;
+    },
+  });
+
   const entries: { path: string; data: Uint8Array }[] = [];
   let totalBytes = 0;
-  let skipped = 0;
   for (const [name, data] of Object.entries(files)) {
     if (data === null) continue; // directory entry
     let rel = name.replace(/^[^/]+\//, '');
@@ -214,14 +288,6 @@ export async function loadRepoFiles(input: string): Promise<LoadResult> {
       rel = rel.slice(subPrefix.length);
     }
     if (!rel || rel.endsWith('/')) continue;
-    if (shouldSkip(rel)) {
-      skipped++;
-      continue;
-    }
-    if (data.length > MAX_FILE_BYTES) {
-      skipped++;
-      continue;
-    }
     totalBytes += data.length;
     entries.push({ path: `/${rel}`, data });
   }

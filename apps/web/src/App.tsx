@@ -11,6 +11,9 @@ import { QuickOpen } from './components/QuickOpen';
 import { PreviewPane } from './components/PreviewPane';
 import { DiffView } from './components/DiffView';
 import { previewProject } from './runtime/preview';
+import { detectProject } from './runtime/detect';
+import { getVfs } from './vfs';
+import { termWrite } from './termBus';
 import { requestSave } from './editorBus';
 
 export function App() {
@@ -18,6 +21,10 @@ export function App() {
   const tree = useStore(projectStore, (s) => s.tree);
   const activeTab = useStore(projectStore, (s) => s.activeTab);
   const mode = useStore(projectStore, (s) => s.mode);
+  const status = useStore(projectStore, (s) => s.status);
+  const autoDev = useStore(projectStore, (s) => s.autoDev);
+  const autoDevFor = useStore(projectStore, (s) => s.autoDevFor);
+  const repoUrl = useStore(projectStore, (s) => s.repoUrl);
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   // Global shortcuts: Ctrl+` terminal, Ctrl+S save, Ctrl+P quick open.
@@ -43,6 +50,31 @@ export function App() {
   const hasProject = tree.length > 0 || mode === 'pr';
   const showWelcome = !hasProject;
   const isPr = mode === 'pr';
+
+  // Auto-dev: once a repo finishes loading, detect the project and start
+  // the preview automatically (once per repoUrl, toggleable via ⚡ auto-dev).
+  useEffect(() => {
+    if (status !== 'ready' || mode !== 'repo' || !autoDev || autoDevFor === repoUrl) return;
+    setState({ autoDevFor: repoUrl });
+    void (async () => {
+      const vfs = await getVfs();
+      const info = detectProject(vfs);
+      const hasDevScript = !!(info.scripts.dev || info.scripts.start);
+      if (!info.entry) {
+        termWrite('\x1b[2m[auto-dev] no runnable entry found — skipped\x1b[0m\r\n');
+        return;
+      }
+      termWrite(
+        `\x1b[2m[auto-dev] ${info.framework} project${hasDevScript ? ` (${info.scripts.dev ?? info.scripts.start})` : ''} — starting preview…\x1b[0m\r\n`,
+      );
+      try {
+        await previewProject((m) => termWrite(`\x1b[2m${m}\x1b[0m\r\n`));
+        termWrite('\x1b[32m[auto-dev] preview ready →\x1b[0m\r\n');
+      } catch (e) {
+        termWrite(`\x1b[31m[auto-dev] preview failed: ${e instanceof Error ? e.message : e}\x1b[0m\r\n`);
+      }
+    })();
+  }, [status, mode, autoDev, autoDevFor, repoUrl]);
 
   return (
     <div className="app">
@@ -89,6 +121,13 @@ export function App() {
               <div className="terminal-bar">
                 <button onClick={() => setState({ terminalOpen: !terminalOpen })}>
                   {terminalOpen ? '▾ Hide terminal' : '▸ Show terminal'}
+                </button>
+                <button
+                  className={`autodev-btn ${autoDev ? 'on' : ''}`}
+                  title="Auto-start preview when a project loads"
+                  onClick={() => setState({ autoDev: !autoDev, autoDevFor: null })}
+                >
+                  ⚡ auto-dev
                 </button>
                 <button
                   className="preview-btn"

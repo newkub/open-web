@@ -8,6 +8,8 @@ const LS_KEY = 'stackbox:last-url';
 export function TopBar({ onMenu }: { onMenu: () => void }) {
   const status = useStore(projectStore, (s) => s.status);
   const message = useStore(projectStore, (s) => s.statusMessage);
+  const loadBytes = useStore(projectStore, (s) => s.loadBytes);
+  const loadTotal = useStore(projectStore, (s) => s.loadTotal);
   const fileCount = useStore(projectStore, (s) => s.fileCount);
   const owner = useStore(projectStore, (s) => s.owner);
   const repo = useStore(projectStore, (s) => s.repo);
@@ -69,6 +71,14 @@ export function TopBar({ onMenu }: { onMenu: () => void }) {
         </span>
         {error && <span className="error">{error}</span>}
       </div>
+      {(status === 'loading-zip' || status === 'extracting') && (
+        <div className={`load-progress ${status === 'extracting' ? 'extracting' : ''}`} title={message}>
+          <div
+            className="load-progress-fill"
+            style={{ width: loadTotal > 0 ? `${Math.min(100, (loadBytes / loadTotal) * 100)}%` : '100%' }}
+          />
+        </div>
+      )}
     </header>
   );
 }

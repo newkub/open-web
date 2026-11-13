@@ -30,6 +30,8 @@ export interface ProjectState {
   branch: string;
   status: LoadStatus;
   statusMessage: string;
+  loadBytes: number;
+  loadTotal: number;
   fileCount: number;
   totalBytes: number;
   tree: FileEntry[];
@@ -46,6 +48,10 @@ export interface ProjectState {
   prDiff: import('./diff/parse').DiffFile[] | null;
   prStatus: LoadStatus;
   prMessage: string;
+  /** Auto-start preview when a runnable project finishes loading. */
+  autoDev: boolean;
+  /** repoUrl that already auto-started (run once per load). */
+  autoDevFor: string | null;
 }
 
 const initial: ProjectState = {
@@ -55,6 +61,8 @@ const initial: ProjectState = {
   branch: '',
   status: 'idle',
   statusMessage: 'Paste a GitHub URL to load a project',
+  loadBytes: 0,
+  loadTotal: 0,
   fileCount: 0,
   totalBytes: 0,
   tree: [],
@@ -71,6 +79,8 @@ const initial: ProjectState = {
   prDiff: null,
   prStatus: 'idle',
   prMessage: '',
+  autoDev: true,
+  autoDevFor: null,
 };
 
 export const projectStore = new Store<ProjectState>(initial);
