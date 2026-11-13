@@ -1,14 +1,31 @@
 {
   "name": "@open-web/runtime-bun",
   "version": "0.1.0",
-  "private": true,
+  "description": "In-browser bundler + preview runtime for open-web (esbuild-wasm, VFS plugin, Vue SFC)",
   "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./src/index.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json"
   },
   "dependencies": {
-    "@open-web/types-bun": "workspace:*",
+    "@open-web/types-bun": "0.1.0",
     "@vue/compiler-sfc": "3.5.44",
     "esbuild-wasm": "0.27.7"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/newkub/open-web.git"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
