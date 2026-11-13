@@ -20,6 +20,15 @@ const examples = [
   'vitejs/vite',
 ];
 
+// Decorative mock of the IDE — pure CSS, no assets.
+const mockFiles = [
+  ['📁', 'src', true],
+  ['📄', 'src/App.tsx', false],
+  ['📄', 'src/main.tsx', false],
+  ['📄', 'package.json', false],
+  ['📄', 'vite.config.ts', false],
+] as const;
+
 document.getElementById('app')!.innerHTML = `
 <header class="nav">
   <div class="brand">⬒ open-web</div>
@@ -33,6 +42,7 @@ document.getElementById('app')!.innerHTML = `
 </header>
 
 <section class="hero">
+  <div class="hero-glow" aria-hidden="true"></div>
   <div class="hero-badge">browser IDE + CLI · Rust/WASM · no server</div>
   <h1>Open anything<br/><span class="accent">in your browser</span></h1>
   <p class="sub">Paste a GitHub URL and get a file tree, a real editor, a terminal,
@@ -44,6 +54,34 @@ document.getElementById('app')!.innerHTML = `
     <a class="btn ghost" href="${REPO_URL}">View on GitHub</a>
   </div>
   <p class="hint">Try: github.com/micahlt/vite-vue3-simple-starter · …/pull/N for PR diffs</p>
+
+  <div class="ide-mock" aria-hidden="true">
+    <div class="mock-bar">
+      <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+      <span class="mock-url">open-web.newkubise.workers.dev/app</span>
+    </div>
+    <div class="mock-body">
+      <div class="mock-side">
+        ${mockFiles.map(([icon, name, dir]) => `<div class="mock-file ${dir ? 'dir' : ''}">${icon} ${name}</div>`).join('')}
+      </div>
+      <div class="mock-main">
+        <div class="mock-tabs"><span class="mock-tab active">App.tsx</span><span class="mock-tab">main.tsx</span></div>
+        <pre class="mock-code"><code><span class="kw">import</span> { useState } <span class="kw">from</span> <span class="str">'react'</span>
+
+<span class="kw">export default function</span> <span class="fn">App</span>() {
+  <span class="kw">const</span> [count, setCount] = <span class="fn">useState</span>(<span class="num">0</span>)
+  <span class="kw">return</span> &lt;<span class="fn">button</span> <span class="attr">onClick</span>={() =&gt; <span class="fn">setCount</span>(c =&gt; c + <span class="num">1</span>)}&gt;
+    count: {count}
+  &lt;/<span class="fn">button</span>&gt;
+}</code></pre>
+      </div>
+      <div class="mock-term">
+        <div class="mock-term-line"><span class="prompt">~</span> run App.tsx</div>
+        <div class="mock-term-line dim">bundling… esbuild-wasm ✓ 84ms</div>
+        <div class="mock-term-line ok">preview ready → localhost:0</div>
+      </div>
+    </div>
+  </div>
 </section>
 
 <section class="products" id="products">
@@ -122,3 +160,20 @@ open-in-web diff ui https://a.dev https://b.dev</code></pre>
   <a href="${APP_URL}">app</a></span>
 </footer>
 `;
+
+// Scroll-reveal: fade+rise elements as they enter the viewport.
+const io = new IntersectionObserver(
+  (entries) => {
+    for (const e of entries) {
+      if (e.isIntersecting) {
+        e.target.classList.add('in');
+        io.unobserve(e.target);
+      }
+    }
+  },
+  { threshold: 0.12 },
+);
+for (const el of document.querySelectorAll('.product-card, .card, .examples, .strip > div')) {
+  el.classList.add('reveal');
+  io.observe(el);
+}
