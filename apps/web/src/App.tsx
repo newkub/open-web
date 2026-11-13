@@ -127,20 +127,23 @@ export function App() {
           </>
         )}
         <section className="workarea">
-          {isPr ? (
-            <DiffView />
-          ) : showWelcome ? (
-            <Welcome />
-          ) : activeTab ? (
-            <EditorPane />
-          ) : hasProject ? (
-            <FileBrowser />
-          ) : (
-            <div className="editor-empty">
-              Select a file from the explorer
-              <span className="editor-hint">or press Ctrl+P to quick-open</span>
-            </div>
-          )}
+          <div className="editor-region">
+            {isPr ? (
+              <DiffView />
+            ) : showWelcome ? (
+              <Welcome />
+            ) : activeTab ? (
+              <EditorPane />
+            ) : hasProject ? (
+              <FileBrowser />
+            ) : (
+              <div className="editor-empty">
+                Select a file from the explorer
+                <span className="editor-hint">or press Ctrl+P to quick-open</span>
+              </div>
+            )}
+            {!isPr && <PreviewPane />}
+          </div>
           {!isPr && (
             <>
               <div className="terminal-bar">
@@ -171,7 +174,6 @@ export function App() {
                 <span className="terminal-hint">Ctrl+` · run/preview in terminal</span>
               </div>
               <TerminalPane />
-              <PreviewPane />
             </>
           )}
         </section>
