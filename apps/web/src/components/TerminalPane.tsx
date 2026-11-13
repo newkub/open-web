@@ -41,7 +41,7 @@ export function TerminalPane() {
 
     const write = (s: string) => term.write(s);
     setTermWriter(write);
-    write('\x1b[1;36mstackbox shell\x1b[0m — type `help`. `run <file>` executes JS, `preview` bundles the app.\r\n\r\n');
+    write('\x1b[1;36mopen-web shell\x1b[0m — type `help`. `run <file>` executes JS, `preview` bundles the app.\r\n\r\n');
     prompt(write);
 
     let line = '';

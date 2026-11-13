@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useStore } from '@tanstack/react-store';
 import { projectStore, setState } from '../store';
 import { loadRepo } from '../github';
@@ -48,6 +48,14 @@ export function TopBar({ onMenu }: { onMenu: () => void }) {
 
   const busy = status === 'loading-meta' || status === 'loading-zip' || status === 'extracting';
 
+  // Esc closes the GitHub auth panel.
+  useEffect(() => {
+    if (!authOpen) return;
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setAuthOpen(false);
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [authOpen]);
+
   const open = async (target?: string) => {
     const value = (target ?? url).trim();
     if (!value) return;
@@ -68,7 +76,7 @@ export function TopBar({ onMenu }: { onMenu: () => void }) {
       <button className="menu-btn" onClick={onMenu} aria-label="Toggle files">
         ☰
       </button>
-      <div className="brand">⬒ stackbox</div>
+      <div className="brand">⬒ open-web</div>
       {owner && repo && (
         <div className="repo-chip" title={`${owner}/${repo}@${branch}`}>
           {owner}/{repo}
@@ -109,7 +117,7 @@ export function TopBar({ onMenu }: { onMenu: () => void }) {
           {auth ? `◉ ${auth.login || 'GH'}` : 'Sign in'}
         </button>
         {authOpen && (
-          <div className="gh-panel">
+          <div className="gh-panel" role="dialog" aria-label="GitHub sign-in">
             {auth ? (
               <>
                 <div className="gh-row">Signed in as <b>{auth.login}</b></div>
@@ -121,6 +129,7 @@ export function TopBar({ onMenu }: { onMenu: () => void }) {
               <>
                 <input
                   placeholder="OAuth App client ID"
+                  aria-label="GitHub OAuth App client ID"
                   value={clientId}
                   onChange={(e) => setClientIdInput(e.target.value)}
                   spellCheck={false}

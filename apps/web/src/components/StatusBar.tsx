@@ -23,7 +23,7 @@ export function StatusBar() {
       {dirty > 0 && <span className="sb-item sb-dirty">{dirty} unsaved</span>}
       {activeTab && <span className="sb-item sb-path" title={activeTab}>{activeTab}</span>}
       <span className="sb-item">UTF-8</span>
-      <span className="sb-item">stackbox-sh</span>
+      <span className="sb-item">open-web-sh</span>
     </footer>
   );
 }

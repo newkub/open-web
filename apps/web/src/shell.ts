@@ -204,6 +204,6 @@ export async function runShellLine(line: string, write: (s: string) => void): Pr
       write('\x1b[2J\x1b[H');
       break;
     default:
-      write(`stackbox-sh: ${cmd}: command not found (try 'help')\n`);
+      write(`open-web-sh: ${cmd}: command not found (try 'help')\n`);
   }
 }

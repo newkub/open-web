@@ -14,7 +14,7 @@ export function Welcome() {
     <div className="welcome">
       <div className="welcome-card">
         <div className="welcome-logo">⬒</div>
-        <h1>stackbox</h1>
+        <h1>open-web</h1>
         <p className="welcome-sub">
           Paste a GitHub URL above to open a project — files load into a Rust/WASM
           virtual filesystem, edit in place, and explore from the terminal.

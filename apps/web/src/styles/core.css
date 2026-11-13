@@ -34,7 +34,7 @@ body {
   border-right: none; border-radius: 6px 0 0 6px; color: var(--text);
   padding: 6px 10px; font: 12px ui-monospace, Consolas, monospace; outline: none;
 }
-.urlbar input:focus { border-color: var(--accent); }
+.urlbar input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(88,166,255,0.15); }
 .urlbar button {
   background: var(--accent); border: none; color: #04101f; font-weight: 600;
   padding: 6px 14px; border-radius: 0 6px 6px 0; cursor: pointer;
@@ -128,31 +128,6 @@ body {
 }
 .sidebar-toggle.hidden { display: none; }
 
-/* ---- welcome ---- */
-.welcome { flex: 1; display: flex; align-items: center; justify-content: center; overflow: auto; padding: 24px; }
-.welcome-card { max-width: 560px; width: 100%; text-align: center; }
-.welcome-logo { font-size: 44px; color: var(--accent); }
-.welcome h1 { margin: 8px 0 4px; font-size: 28px; }
-.welcome-sub { color: var(--text-dim); margin: 0 0 24px; }
-.welcome-examples { display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; }
-.examples-title { font-size: 11px; letter-spacing: 0.08em; color: var(--text-dim); text-transform: uppercase; }
-.example-chip {
-  display: flex; justify-content: space-between; align-items: baseline; gap: 12px;
-  padding: 10px 14px; background: var(--bg-panel); border: 1px solid var(--border);
-  border-radius: 8px; color: var(--text); cursor: pointer; text-align: left;
-}
-.example-chip:hover { border-color: var(--accent); background: var(--bg-elev); }
-.example-label { font: 13px ui-monospace, Consolas, monospace; color: #79c0ff; }
-.example-hint { color: var(--text-dim); font-size: 12px; }
-.welcome-keys { display: flex; gap: 16px; justify-content: center; color: var(--text-dim); font-size: 12px; flex-wrap: wrap; }
-.welcome-keys kbd {
-  background: var(--bg-elev); border: 1px solid var(--border); border-bottom-width: 2px;
-  border-radius: 4px; padding: 1px 6px; font: 11px ui-monospace, monospace;
-}
-
-.editor-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: var(--text-dim); }
-.editor-hint { font-size: 12px; opacity: 0.7; }
-
 /* ---- status bar ---- */
 .statusbar {
   display: flex; align-items: center; gap: 14px; flex: none;
@@ -226,7 +201,7 @@ body {
     display: block; position: fixed; inset: 0; z-index: 35;
     background: rgba(0,0,0,0.45);
   }
-  .menu-btn { display: block; }
+  .menu-btn { display: block; padding: 8px 12px; font-size: 18px; }
   .sidebar-toggle { display: block; }
   .repo-chip { display: none; }
   .topbar { flex-wrap: wrap; row-gap: 6px; }
