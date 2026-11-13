@@ -7,3 +7,4 @@
 - devin - published @wrikka/open-web@0.1.0 to npm (verified dist-tag latest); UX pass: file browser sort/size/reveal-in-tree, tree root context menu + new-file, viewport-clamped menus, quick-open match ranking, styles.css split into styles/{core,views,browser}.css; deployed stackbox v1251207f
 - devin - verified open-in-web diff lane: tsrs typecheck + vite build + serve smoke (ping/default/diff API returns real unified diff, SPA assets 200)
 - devin - renamed worker stackbox -> open-web (canonical open-web.newkubise.workers.dev), rebuilt landing as full product page (IDE+CLI cards, features, examples, stack), deleted legacy stackbox worker
+- devin - merged site onto single worker (landing /, IDE /app), deleted open-web-landing worker, cleaned dead footer link
