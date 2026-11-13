@@ -1,15 +1,16 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { useStore } from '@tanstack/react-store';
 import { projectStore, setState, notify } from './store';
 import { TopBar } from './components/TopBar';
 import { FileTree } from './components/FileTree';
-import { EditorPane } from './components/EditorPane';
-import { TerminalPane } from './components/TerminalPane';
+// Lazy: CodeMirror (~400KB gz) and the diff view only load when needed.
+const EditorPane = lazy(() => import('./components/EditorPane').then((m) => ({ default: m.EditorPane })));
+const DiffView = lazy(() => import('./components/DiffView').then((m) => ({ default: m.DiffView })));
 import { StatusBar } from './components/StatusBar';
 import { Welcome } from './components/Welcome';
 import { QuickOpen } from './components/QuickOpen';
 import { PreviewPane } from './components/PreviewPane';
-import { DiffView } from './components/DiffView';
+import { TerminalPane } from './components/TerminalPane';
 import { FileBrowser } from './components/FileBrowser';
 import { detectProject, previewProject, initBundler } from '@wrikka/open-web/runtime';
 import { getVfs } from './vfs';
@@ -133,6 +134,7 @@ export function App() {
         )}
         <section className="workarea">
           <div className="editor-region">
+            <Suspense fallback={<div className="editor-empty">Loading…</div>}>
             {isPr ? (
               <DiffView />
             ) : showWelcome ? (
@@ -148,6 +150,7 @@ export function App() {
               </div>
             )}
             {!isPr && <PreviewPane />}
+            </Suspense>
           </div>
           {!isPr && (
             <>
