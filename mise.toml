@@ -1,0 +1,7 @@
+[tasks]
+dev = "bun run dev"
+build = "bun run build"
+wasm = "bun run wasm"
+deploy = "bun run deploy"
+test = "cargo test --workspace"
+check = "bun run typecheck && cargo check --workspace"

@@ -1,0 +1,15 @@
+{
+  "name": "stackbox",
+  "private": true,
+  "version": "0.1.0",
+  "description": "In-browser IDE: load a GitHub repo, browse files, edit code, run it — no server required",
+  "workspaces": ["apps/*", "packages/*"],
+  "scripts": {
+    "dev": "bun run --cwd apps/web dev",
+    "build": "bun run --cwd apps/web build",
+    "wasm": "cargo build -p webide-wasm --target wasm32-unknown-unknown --release && wasm-bindgen --target web --out-dir apps/web/public/wasm target/wasm32-unknown-unknown/release/webide_wasm.wasm",
+    "deploy": "wrangler deploy",
+    "typecheck": "bun run --cwd apps/web typecheck"
+  },
+  "license": "MIT"
+}

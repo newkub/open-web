@@ -1,0 +1,9 @@
+{
+  "name": "stackbox",
+  "main": "./worker/index.ts",
+  "compatibility_date": "2026-11-13",
+  "assets": {
+    "directory": "./apps/web/dist",
+    "binding": "ASSETS"
+  }
+}

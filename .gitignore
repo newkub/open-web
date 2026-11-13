@@ -1,0 +1,8 @@
+node_modules/
+dist/
+target/
+.wrangler/
+.dev.vars
+*.local
+.DS_Store
+apps/web/public/wasm/
