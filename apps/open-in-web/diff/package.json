@@ -1,0 +1,31 @@
+{
+  "name": "open-in-web-diff",
+  "version": "0.4.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "start": "bun src/serve.ts",
+    "typecheck": "tsrs --noEmit",
+    "format:check": "vp fmt --check src"
+  },
+  "dependencies": {
+    "@pierre/diffs": "^1.6.1",
+    "pixelmatch": "^8.0.0",
+    "pngjs": "^7.0.0",
+    "solid-js": "^1.9.0"
+  },
+  "devDependencies": {
+    "@iconify-json/mdi": "^1.2.0",
+    "@types/node": "^24.0.0",
+    "@types/pngjs": "^6.0.5",
+    "@unocss/preset-wind4": "^66.10.0",
+    "bun-types": "latest",
+    "playwright": "1.55.0",
+    "typescript": "^5.7.0",
+    "unocss": "^66.10.2",
+    "vite": "^7.1.0",
+    "vite-plugin-solid": "^2.11.14"
+  }
+}

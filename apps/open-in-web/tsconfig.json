@@ -1,0 +1,77 @@
+{
+	"compilerOptions": {
+		"target": "ESNext",
+		"lib": [
+			"ES2022",
+			"DOM"
+		],
+		"types": [
+			"@types/bun"
+		],
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"allowJs": false,
+		"allowSyntheticDefaultImports": true,
+		"esModuleInterop": true,
+		"isolatedModules": true,
+		"strict": true,
+		"composite": true,
+		"declaration": true,
+		"declarationMap": true,
+		"incremental": true,
+		"outDir": "dist",
+		"noEmit": false,
+		"noEmitOnError": true,
+		"skipLibCheck": true,
+		"sourceMap": true,
+		"removeComments": false,
+		"importHelpers": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"noImplicitReturns": true,
+		"noFallthroughCasesInSwitch": true,
+		"noUncheckedIndexedAccess": false,
+		"noImplicitOverride": true,
+		"exactOptionalPropertyTypes": false,
+		"noImplicitAny": true,
+		"strictNullChecks": true,
+		"strictFunctionTypes": true,
+		"strictBindCallApply": true,
+		"strictPropertyInitialization": true,
+		"alwaysStrict": true,
+		"noImplicitThis": true,
+		"useUnknownInCatchVariables": true,
+		"noPropertyAccessFromIndexSignature": false,
+		"allowUnusedLabels": false,
+		"allowUnreachableCode": false,
+		"noErrorTruncation": true,
+		"resolveJsonModule": true,
+		"forceConsistentCasingInFileNames": true,
+		"allowImportingTsExtensions": false,
+		"moduleDetection": "force",
+		"paths": {
+			"#shared/*": [
+				"./src/shared/*"
+			],
+			"#modules/*": [
+				"./src/modules/*"
+			],
+			"#adapters/*": [
+				"./src/adapters/*"
+			],
+			"#presentation/*": [
+				"./src/presentation/*"
+			]
+		},
+		"jsx": "react-jsx",
+		"jsxImportSource": "react"
+	},
+	"include": [
+		"src/**/*"
+	],
+	"exclude": [
+		"node_modules",
+		"dist",
+		"**/*.test.ts"
+	]
+}

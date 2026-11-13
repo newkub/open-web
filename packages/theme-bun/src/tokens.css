@@ -1,0 +1,15 @@
+/* open-web shared design tokens — single source for app UIs. */
+:root {
+  color-scheme: dark;
+  --bg: #0d1117;
+  --bg-panel: #161b22;
+  --bg-elev: #1c2128;
+  --border: #30363d;
+  --text: #c9d1d9;
+  --text-dim: #8b949e;
+  --accent: #58a6ff;
+  --green: #3fb950;
+  --red: #f85149;
+  --amber: #d29922;
+  --purple: #a371f7;
+}

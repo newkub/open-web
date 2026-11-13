@@ -17,6 +17,7 @@ import { projectStore, closeTab, markDirty } from '../store';
 import { FileIcon } from '../icons';
 import { getVfs } from '../vfs';
 import { registerSaver } from '../editorBus';
+import { FilePreview } from './FilePreview';
 import type { Extension } from '@codemirror/state';
 
 function langFor(path: string): Extension[] {
@@ -144,7 +145,7 @@ export function EditorPane() {
         ))}
       </div>
       {active && binary[active.path] ? (
-        <div className="binary-note">Binary file — {active.path}</div>
+        <FilePreview path={active.path} />
       ) : active ? (
         <CodeMirror
           key={active.path}

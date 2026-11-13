@@ -1,7 +1,6 @@
 import { getVfs, readTextFile } from './vfs';
-import { runFile } from './runtime/workerExec';
-import { previewProject } from './runtime/preview';
-import { detectProject } from './runtime/detect';
+import { runFile, previewProject, detectProject } from '@open-web/runtime-bun';
+import { setState } from './store';
 
 // Virtual shell layered on the shared VFS, now with real execution:
 //   run <file>   — bundle + execute JS/TS in a Web Worker (edge-js tier)
@@ -13,6 +12,12 @@ interface ShellState {
 }
 
 const state: ShellState = { cwd: '/' };
+
+async function openPreview(write: (s: string) => void): Promise<void> {
+  const vfs = await getVfs();
+  const r = await previewProject(vfs, (m) => write(`\x1b[2m${m}\x1b[0m\n`));
+  setState({ previewUrl: r.url, previewOpen: true, previewTitle: r.title });
+}
 
 export function getCwd(): string {
   return state.cwd;
@@ -159,7 +164,7 @@ export async function runShellLine(line: string, write: (s: string) => void): Pr
       }
       write(`\x1b[2m[bundling ${target}…]\x1b[0m\n`);
       try {
-        const handle = await runFile(target, (e) => write(e.data));
+        const handle = await runFile(vfs, target, (e) => write(e.data));
         const code = await handle.done;
         write(`\x1b[2m[exit ${code}]\x1b[0m\n`);
       } catch (e) {
@@ -170,7 +175,7 @@ export async function runShellLine(line: string, write: (s: string) => void): Pr
     case 'preview': case 'dev': case 'start': {
       write('\x1b[2m[bundling app…]\x1b[0m\n');
       try {
-        await previewProject((m) => write(`\x1b[2m${m}\x1b[0m\n`));
+        await openPreview(write);
         write('\x1b[32mpreview opened →\x1b[0m\n');
       } catch (e) {
         write(`\x1b[31mpreview failed: ${e instanceof Error ? e.message : e}\x1b[0m\n`);
@@ -182,7 +187,7 @@ export async function runShellLine(line: string, write: (s: string) => void): Pr
       if (sub === 'run' || sub === 'start' || sub === 'dev' || !sub) {
         write(`\x1b[2m[${cmd} ${args.join(' ')} → bundling app…]\x1b[0m\n`);
         try {
-          await previewProject(() => {});
+          await openPreview(write);
           write('\x1b[32mpreview opened →\x1b[0m\n');
         } catch (e) {
           write(`\x1b[31m${e instanceof Error ? e.message : e}\x1b[0m\n`);

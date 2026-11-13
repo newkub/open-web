@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/vfs", "crates/protocol", "crates/wasm"]
+members = ["packages/vfs-rust", "packages/protocol-rust", "packages/wasm-rust"]
 resolver = "2"
 
 [workspace.package]

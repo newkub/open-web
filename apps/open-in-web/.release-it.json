@@ -1,0 +1,20 @@
+{
+	"$schema": "./node_modules/release-it/schema/release-it.json",
+	"github": {
+		"requireBranch": "main",
+		"commitMessage": "chore: release v${version}",
+		"tagName": "v${version}",
+		"push": true
+	},
+	"npm": {
+		"publish": true,
+		"timeout": 60000
+	},
+	"git": {
+		"commitMessage": "chore: release v${version}",
+		"pushRepo": "origin"
+	},
+	"hooks": {
+		"before:init": "bun run build"
+	}
+}

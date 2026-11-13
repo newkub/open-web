@@ -52,6 +52,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "protocol-rust"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "quote"
 version = "1.0.47"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -149,6 +157,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a2c754d6c33795a1c324727428e5a7dedb5b06195f9890bdbcba760d3e246563"
 
 [[package]]
+name = "vfs-rust"
+version = "0.1.0"
+dependencies = [
+ "serde",
+]
+
+[[package]]
 name = "wasm-bindgen"
 version = "0.2.118"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -194,30 +209,15 @@ dependencies = [
 ]
 
 [[package]]
-name = "webide-protocol"
-version = "0.1.0"
-dependencies = [
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "webide-vfs"
-version = "0.1.0"
-dependencies = [
- "serde",
-]
-
-[[package]]
-name = "webide-wasm"
+name = "wasm-rust"
 version = "0.1.0"
 dependencies = [
  "js-sys",
+ "protocol-rust",
  "serde",
  "serde-wasm-bindgen",
+ "vfs-rust",
  "wasm-bindgen",
- "webide-protocol",
- "webide-vfs",
 ]
 
 [[package]]

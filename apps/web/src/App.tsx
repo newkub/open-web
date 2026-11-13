@@ -10,8 +10,7 @@ import { Welcome } from './components/Welcome';
 import { QuickOpen } from './components/QuickOpen';
 import { PreviewPane } from './components/PreviewPane';
 import { DiffView } from './components/DiffView';
-import { previewProject } from './runtime/preview';
-import { detectProject } from './runtime/detect';
+import { detectProject, previewProject } from '@open-web/runtime-bun';
 import { getVfs } from './vfs';
 import { termWrite } from './termBus';
 import { requestSave } from './editorBus';
@@ -68,7 +67,8 @@ export function App() {
         `\x1b[2m[auto-dev] ${info.framework} project${hasDevScript ? ` (${info.scripts.dev ?? info.scripts.start})` : ''} — starting preview…\x1b[0m\r\n`,
       );
       try {
-        await previewProject((m) => termWrite(`\x1b[2m${m}\x1b[0m\r\n`));
+        const r = await previewProject(vfs, (m) => termWrite(`\x1b[2m${m}\x1b[0m\r\n`));
+        setState({ previewUrl: r.url, previewOpen: true, previewTitle: r.title });
         termWrite('\x1b[32m[auto-dev] preview ready →\x1b[0m\r\n');
       } catch (e) {
         termWrite(`\x1b[31m[auto-dev] preview failed: ${e instanceof Error ? e.message : e}\x1b[0m\r\n`);
@@ -132,7 +132,14 @@ export function App() {
                 <button
                   className="preview-btn"
                   disabled={!hasProject}
-                  onClick={() => void previewProject((m) => console.log(m)).catch((e) => alert(e.message))}
+                  onClick={() =>
+                    void getVfs()
+                      .then(async (vfs) => {
+                        const r = await previewProject(vfs, (m) => console.log(m));
+                        setState({ previewUrl: r.url, previewOpen: true, previewTitle: r.title });
+                      })
+                      .catch((e) => alert(e.message))
+                  }
                 >
                   ▶ Preview
                 </button>

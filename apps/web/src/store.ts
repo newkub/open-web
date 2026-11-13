@@ -45,7 +45,7 @@ export interface ProjectState {
   previewTitle: string;
   mode: 'repo' | 'pr';
   pr: PrInfo | null;
-  prDiff: import('./diff/parse').DiffFile[] | null;
+  prDiff: import('@open-web/diff-bun').DiffFile[] | null;
   prStatus: LoadStatus;
   prMessage: string;
   /** Auto-start preview when a runnable project finishes loading. */

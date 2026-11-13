@@ -1,9 +1,0 @@
-[package]
-name = "webide-vfs"
-description = "Virtual filesystem shared by editor, shell, git and runtime layers"
-version.workspace = true
-edition.workspace = true
-license.workspace = true
-
-[dependencies]
-serde.workspace = true

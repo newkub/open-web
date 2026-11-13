@@ -1,0 +1,18 @@
+[package]
+name = "wasm-rust"
+description = "wasm-bindgen entry point exposing the VFS to the web app"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+name = "open_web_wasm"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+vfs-rust = { path = "../vfs-rust" }
+protocol-rust = { path = "../protocol-rust" }
+serde.workspace = true
+wasm-bindgen.workspace = true
+serde-wasm-bindgen.workspace = true
+js-sys.workspace = true

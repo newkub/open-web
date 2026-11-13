@@ -1,0 +1,47 @@
+$schema: 'https://moonrepo.dev/schemas/project.json'
+language: typescript
+tasks:
+  dev:
+    command: 'bun run dev'
+  build:
+    command: 'bun run build'
+  build-watch:
+    command: 'bun run build:watch'
+  typecheck:
+    command: 'bun run typecheck'
+  typecheck-watch:
+    command: 'bun run typecheck:watch'
+  lint:
+    command: 'bun run lint'
+  lint-fix:
+    command: 'bun run lint:fix'
+  format:
+    command: 'bun run format'
+  test:
+    command: 'bun run test'
+  test-watch:
+    command: 'bun run test:watch'
+  test-coverage:
+    command: 'bun run test:coverage'
+  test-integration:
+    command: 'bun run test:integration'
+  test-e2e:
+    command: 'bun run test:e2e'
+  scan:
+    command: 'bun run scan'
+  check:
+    command: 'bun run check'
+  verify:
+    command: 'bun run verify'
+  deps-analyze:
+    command: 'bun run deps:analyze'
+  clean:
+    command: 'bun run clean'
+  security:
+    command: 'bun run security'
+  bench:
+    command: 'bun run bench'
+  prerelease:
+    command: 'bun run prerelease'
+  release:
+    command: 'bun run release'

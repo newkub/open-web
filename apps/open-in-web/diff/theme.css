@@ -1,0 +1,120 @@
+/* Single source of truth for design tokens. Values are HSL channels. */
+:root {
+  color-scheme: light;
+
+  --color-background: 210 25% 98%;
+  --color-foreground: 222 40% 11%;
+  --color-surface: 0 0% 100%;
+  --color-surface-elevated: 210 30% 99%;
+  --color-surface-foreground: 222 35% 15%;
+  --color-muted: 214 20% 94%;
+  --color-muted-foreground: 215 16% 42%;
+  --color-border: 214 20% 88%;
+  --color-border-hover: 214 18% 76%;
+  --color-accent: 221 90% 54%;
+  --color-accent-hover: 221 88% 46%;
+  --color-accent-foreground: 0 0% 100%;
+  --color-primary: 262 83% 58%;
+  --color-primary-hover: 262 80% 50%;
+  --color-primary-foreground: 0 0% 100%;
+  --color-secondary: 214 20% 93%;
+  --color-secondary-hover: 214 20% 88%;
+  --color-secondary-foreground: 222 30% 20%;
+  --color-success: 142 72% 34%;
+  --color-success-hover: 142 72% 28%;
+  --color-success-foreground: 0 0% 100%;
+  --color-warning: 32 95% 42%;
+  --color-warning-hover: 32 95% 36%;
+  --color-warning-foreground: 0 0% 100%;
+  --color-destructive: 0 72% 47%;
+  --color-destructive-hover: 0 72% 41%;
+  --color-destructive-foreground: 0 0% 100%;
+  --color-focus: 221 90% 54%;
+  --color-overlay: 222 40% 8%;
+  --color-skeleton: 214 20% 92%;
+  --color-skeleton-shine: 214 20% 96%;
+
+  --radius-sm: 5px;
+  --radius-md: 9px;
+  --radius-lg: 13px;
+  --radius-xl: 18px;
+  --shadow-sm: 0 1px 2px hsl(222 40% 8% / 0.08);
+  --shadow-md: 0 8px 24px -8px hsl(222 40% 8% / 0.25);
+  --shadow-lg: 0 24px 64px -16px hsl(222 40% 8% / 0.4);
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.dark {
+  color-scheme: dark;
+
+  --color-background: 222 26% 7%;
+  --color-foreground: 213 25% 91%;
+  --color-surface: 222 22% 10%;
+  --color-surface-elevated: 222 20% 13%;
+  --color-surface-foreground: 213 22% 88%;
+  --color-muted: 222 18% 16%;
+  --color-muted-foreground: 215 14% 63%;
+  --color-border: 220 14% 21%;
+  --color-border-hover: 220 14% 31%;
+  --color-accent: 217 91% 64%;
+  --color-accent-hover: 217 91% 71%;
+  --color-accent-foreground: 222 30% 8%;
+  --color-primary: 263 85% 68%;
+  --color-primary-hover: 263 85% 74%;
+  --color-primary-foreground: 263 40% 10%;
+  --color-secondary: 222 16% 17%;
+  --color-secondary-hover: 222 16% 22%;
+  --color-secondary-foreground: 213 20% 86%;
+  --color-success: 142 60% 46%;
+  --color-success-hover: 142 62% 52%;
+  --color-success-foreground: 146 60% 8%;
+  --color-warning: 38 92% 55%;
+  --color-warning-hover: 38 92% 62%;
+  --color-warning-foreground: 32 80% 10%;
+  --color-destructive: 0 72% 58%;
+  --color-destructive-hover: 0 72% 64%;
+  --color-destructive-foreground: 0 40% 8%;
+  --color-focus: 217 91% 64%;
+  --color-overlay: 222 40% 4%;
+  --color-skeleton: 222 18% 16%;
+  --color-skeleton-shine: 222 18% 22%;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    color-scheme: dark;
+
+    --color-background: 222 26% 7%;
+    --color-foreground: 213 25% 91%;
+    --color-surface: 222 22% 10%;
+    --color-surface-elevated: 222 20% 13%;
+    --color-surface-foreground: 213 22% 88%;
+    --color-muted: 222 18% 16%;
+    --color-muted-foreground: 215 14% 63%;
+    --color-border: 220 14% 21%;
+    --color-border-hover: 220 14% 31%;
+    --color-accent: 217 91% 64%;
+    --color-accent-hover: 217 91% 71%;
+    --color-accent-foreground: 222 30% 8%;
+    --color-primary: 263 85% 68%;
+    --color-primary-hover: 263 85% 74%;
+    --color-primary-foreground: 263 40% 10%;
+    --color-secondary: 222 16% 17%;
+    --color-secondary-hover: 222 16% 22%;
+    --color-secondary-foreground: 213 20% 86%;
+    --color-success: 142 60% 46%;
+    --color-success-hover: 142 62% 52%;
+    --color-success-foreground: 146 60% 8%;
+    --color-warning: 38 92% 55%;
+    --color-warning-hover: 38 92% 62%;
+    --color-warning-foreground: 32 80% 10%;
+    --color-destructive: 0 72% 58%;
+    --color-destructive-hover: 0 72% 64%;
+    --color-destructive-foreground: 0 40% 8%;
+    --color-focus: 217 91% 64%;
+    --color-overlay: 222 40% 4%;
+    --color-skeleton: 222 18% 16%;
+    --color-skeleton-shine: 222 18% 22%;
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "@open-web/diff-bun",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@open-web/types-bun": "workspace:*",
+    "diff": "9.0.0"
+  }
+}

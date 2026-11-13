@@ -377,3 +377,35 @@ body {
   padding: 3px 10px; border-radius: 5px; cursor: pointer; font-size: 12px;
 }
 .autodev-btn.on { color: #d29922; border-color: #9e6a03; background: rgba(210,153,34,0.08); }
+
+/* GitHub auth */
+.gh-auth { position: relative; }
+.gh-btn {
+  background: var(--bg-panel); border: 1px solid var(--border); color: var(--text-dim);
+  border-radius: 6px; padding: 4px 10px; font-size: 12px; cursor: pointer; white-space: nowrap;
+}
+.gh-btn:hover { border-color: var(--accent); color: var(--text); }
+.gh-btn.gh-on { color: #3fb950; border-color: #238636; }
+.gh-btn.gh-primary { background: var(--accent); color: #04101f; border: none; font-weight: 600; }
+.gh-btn:disabled { opacity: 0.5; cursor: default; }
+.gh-panel {
+  position: absolute; right: 0; top: calc(100% + 8px); z-index: 60; width: 300px;
+  background: var(--bg-panel); border: 1px solid var(--border); border-radius: 10px;
+  padding: 14px; display: flex; flex-direction: column; gap: 10px;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+}
+.gh-panel input {
+  background: var(--bg); border: 1px solid var(--border); color: var(--text);
+  border-radius: 6px; padding: 7px 10px; font-size: 13px; font-family: ui-monospace, monospace;
+}
+.gh-hint { margin: 0; font-size: 11px; color: var(--text-dim); line-height: 1.5; }
+.gh-msg { font-size: 12px; color: var(--accent); word-break: break-all; }
+.gh-row { font-size: 13px; color: var(--text-dim); }
+
+/* File previews (binary) */
+.file-preview { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 24px; overflow: auto; }
+.file-preview-img { padding: 0; height: 100%; display: flex; align-items: center; justify-content: center; }
+.file-preview-img img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.file-preview-pdf { width: 100%; height: 100%; border: none; background: #fff; }
+.preview-name { font-family: ui-monospace, monospace; font-size: 12px; color: var(--text-dim); margin: 0; }
+.file-preview audio, .file-preview video { max-width: min(720px, 90%); }

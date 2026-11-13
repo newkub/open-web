@@ -1,15 +1,17 @@
 {
-  "name": "stackbox",
+  "name": "open-web",
   "private": true,
   "version": "0.1.0",
-  "description": "In-browser IDE: load a GitHub repo, browse files, edit code, run it — no server required",
+  "description": "Open-web: in-browser IDE + file/diff preview — load GitHub repos, edit, run, and review diffs. No server required.",
   "workspaces": ["apps/*", "packages/*"],
   "scripts": {
     "dev": "bun run --cwd apps/web dev",
     "build": "bun run --cwd apps/web build",
-    "wasm": "cargo build -p webide-wasm --target wasm32-unknown-unknown --release && wasm-bindgen --target web --out-dir apps/web/public/wasm target/wasm32-unknown-unknown/release/webide_wasm.wasm",
+    "wasm": "cargo build -p wasm-rust --target wasm32-unknown-unknown --release && wasm-bindgen --target web --out-dir apps/web/public/wasm target/wasm32-unknown-unknown/release/open_web_wasm.wasm",
     "deploy": "wrangler deploy",
-    "typecheck": "bun run --cwd apps/web typecheck"
+    "typecheck": "bun run --cwd apps/web typecheck",
+    "test": "cargo test --workspace",
+    "check": "bun run typecheck && cargo check --workspace"
   },
   "license": "MIT"
 }

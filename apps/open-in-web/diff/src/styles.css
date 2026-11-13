@@ -1,0 +1,199 @@
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  overflow: hidden;
+  background-color: hsl(var(--color-background));
+  color: hsl(var(--color-foreground));
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background-color: hsl(var(--color-accent) / 0.28);
+}
+
+button:not(:disabled),
+[role='button']:not([aria-disabled='true']) {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+.skip-link {
+  position: fixed;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 100;
+  transform: translateY(-200%);
+  transition: transform 150ms ease;
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+  outline: 2px solid hsl(var(--color-focus));
+  outline-offset: 2px;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--color-border-hover)) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: hsl(var(--color-border-hover));
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background-clip: content-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: hsl(var(--color-muted-foreground) / 0.7);
+}
+
+.app-backdrop {
+  background-image:
+    radial-gradient(60rem 40rem at 15% -10%, hsl(var(--color-primary) / 0.1), transparent 60%),
+    radial-gradient(50rem 35rem at 110% 0%, hsl(var(--color-accent) / 0.08), transparent 55%);
+}
+
+.diff-host {
+  font-family: var(--font-mono);
+  font-size: calc(12.5px * var(--diff-font-scale, 1));
+  line-height: 1.55;
+}
+
+.diff-host diffs-container,
+.diff-host .diffs-container {
+  font-family: var(--font-mono);
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.fade-in {
+  animation: fade-in 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.rise-in {
+  animation: rise-in 300ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.grid-texture {
+  background-image: linear-gradient(hsl(var(--color-border) / 0.35) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(var(--color-border) / 0.35) 1px, transparent 1px);
+  background-size: 28px 28px;
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+}
+
+.menu-item {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 0.375rem;
+  padding: 0.375rem 0.5rem;
+  font-size: 11px;
+  line-height: 1.2;
+  color: hsl(var(--color-secondary-foreground));
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.menu-item:hover {
+  background-color: hsl(var(--color-secondary));
+  color: hsl(var(--color-foreground));
+}
+
+.menu-item:focus-visible {
+  background-color: hsl(var(--color-secondary));
+  color: hsl(var(--color-foreground));
+  outline: 2px solid hsl(var(--color-focus));
+  outline-offset: -2px;
+}
+
+.menu-item:disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.modal-overlay,
+.sheet-overlay {
+  background-color: hsl(var(--color-overlay) / 0.55);
+  backdrop-filter: blur(3px);
+}
+
+.slide-in {
+  animation: slide-in 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.popover-enter {
+  animation: popover-in 140ms cubic-bezier(0.22, 1, 0.36, 1);
+  transform-origin: top right;
+}
+
+@keyframes popover-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-in,
+  .rise-in,
+  .popover-enter,
+  .slide-in {
+    animation: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+  }
+}

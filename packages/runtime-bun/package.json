@@ -1,0 +1,14 @@
+{
+  "name": "@open-web/runtime-bun",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@open-web/types-bun": "workspace:*",
+    "@vue/compiler-sfc": "3.5.44",
+    "esbuild-wasm": "0.27.7"
+  }
+}

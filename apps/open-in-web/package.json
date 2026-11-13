@@ -1,0 +1,75 @@
+{
+  "name": "open-in-web",
+  "version": "1.0.0",
+  "type": "module",
+  "bin": {
+    "open-in-open-terminal": "./dist/presentation/cli/cli.js",
+    "ofw": "./dist/presentation/cli/cli.js",
+    "open-files": "./dist/presentation/cli/cli.js",
+    "open-in-web": "./dist/presentation/cli/cli.js"
+  },
+  "dependencies": {
+    "@shikijs/langs": "^4.4.3",
+    "@shikijs/themes": "^4.4.3",
+    "@tanstack/solid-router": "^1.170.30",
+    "commander": "^15.0.0",
+    "cosmiconfig": "^10.0.1",
+    "markdown-it": "^15.0.1",
+    "markdown-it-anchor": "^9.2.1",
+    "markdown-it-mathjax3": "^5.2.0",
+    "markdown-it-mermaid": "^0.2.5",
+    "markdown-it-toc-done-right": "^4.2.0",
+    "open": "^11.0.2",
+    "playwright-core": "^1.62.1",
+    "shiki": "^4.4.3",
+    "solid-js": "^1.9.15"
+  },
+  "devDependencies": {
+    "@shikijs/markdown-it": "^4.4.3",
+    "@types/bun": "^1.4.0",
+    "@types/markdown-it": "^14.2.0",
+    "bunup": "^0.16.32",
+    "release-it": "^21.0.2",
+    "typescript": "^7.0.2",
+    "vite": "^8.2.2",
+    "vite-plugin-solid": "^2.11.14"
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./cli": {
+      "types": "./dist/presentation/cli/cli.d.ts",
+      "default": "./dist/presentation/cli/cli.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "keywords": [
+    "cli",
+    "open",
+    "open-in-terminal",
+    "runtime:bun"
+  ],
+  "scripts": {
+    "dev": "bun run src/index.ts",
+    "build:preview": "bunx vite build --config preview/vite.config.ts",
+    "build:cli": "bun build src/index.ts src/presentation/cli/cli.ts --outdir dist --target bun --external open && tsc --emitDeclarationOnly",
+    "build:compile": "bun build --compile src/presentation/cli/cli.ts --outfile dist/open-in-web.exe && bun -e \"for (const n of ['ofw','open-files','open-in-open-terminal']) Bun.write('dist/'+n+'.exe', Bun.file('dist/open-in-web.exe'))\"",
+    "build": "bun run build:preview && bun run build:diff && bun run build:cli && bun run build:compile",
+    "build:watch": "bunup --watch",
+    "typecheck": "bun check",
+    "typecheck:watch": "bun run --watch typecheck",
+    "typecheck:tsrs": "tsrs --noEmit",
+    "format:check": "vp fmt --check src",
+    "test": "bun test",
+    "test:watch": "bun test --watch",
+    "verify": "bun run typecheck && bun run test && bun run build",
+    "deps:analyze": "bunx depcheck",
+    "clean": "bunx rimraf node_modules dist",
+    "build:diff": "bun --cwd diff run build && bun build diff/src/serve.ts --outdir dist/diff-server --target bun"
+  }
+}

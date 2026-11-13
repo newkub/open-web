@@ -1,48 +1,8 @@
 import { useMemo, useState } from 'react';
 import { useStore } from '@tanstack/react-store';
-import { diffWordsWithSpace } from 'diff';
+import { pairChangedLines, type DiffFile, type DiffHunk, type DiffLine, type TokenPart } from '@open-web/diff-bun';
 import { projectStore } from '../store';
 import { FileIcon } from '../icons';
-import type { DiffFile, DiffHunk, DiffLine } from '../diff/parse';
-
-interface TokenPart {
-  value: string;
-  added?: boolean;
-  removed?: boolean;
-}
-
-interface LinePair {
-  del: DiffLine;
-  add: DiffLine;
-  delParts: TokenPart[];
-  addParts: TokenPart[];
-}
-
-/** Pair removed/added lines inside a hunk and compute word-level diffs. */
-function pairChanges(hunk: DiffHunk): LinePair[] {
-  const pairs: LinePair[] = [];
-  const lines = hunk.lines;
-  let i = 0;
-  while (i < lines.length) {
-    if (lines[i].type !== 'del') { i++; continue; }
-    const dels: DiffLine[] = [];
-    while (i < lines.length && lines[i].type === 'del') dels.push(lines[i++]);
-    const adds: DiffLine[] = [];
-    while (i < lines.length && lines[i].type === 'add') adds.push(lines[i++]);
-    const n = Math.min(dels.length, adds.length);
-    for (let k = 0; k < n; k++) {
-      const parts = diffWordsWithSpace(dels[k].content, adds[k].content);
-      const delParts: TokenPart[] = [];
-      const addParts: TokenPart[] = [];
-      for (const p of parts) {
-        if (!p.added) delParts.push({ value: p.value, removed: p.removed });
-        if (!p.removed) addParts.push({ value: p.value, added: p.added });
-      }
-      pairs.push({ del: dels[k], add: adds[k], delParts, addParts });
-    }
-  }
-  return pairs;
-}
 
 function renderTokens(parts: TokenPart[], side: 'del' | 'add') {
   return parts.map((p, i) => {
@@ -56,7 +16,7 @@ function renderTokens(parts: TokenPart[], side: 'del' | 'add') {
 }
 
 function HunkView({ hunk }: { hunk: DiffHunk }) {
-  const pairs = useMemo(() => pairChanges(hunk), [hunk]);
+  const pairs = useMemo(() => pairChangedLines(hunk), [hunk]);
   const delMap = new Map(pairs.map((p) => [p.del.oldNo, p]));
   const addMap = new Map(pairs.map((p) => [p.add.newNo, p]));
 
