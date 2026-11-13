@@ -34,7 +34,7 @@ export async function previewProject(
   const html = `<!doctype html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 ${css ? `<style>${css.replace(/<\/style/gi, '<\\/style')}</style>` : ''}
-</head><body><div id="root"></div>
+</head><body><div id="root"></div><div id="app"></div>
 <script type="module">${safeCode}</script></body></html>`;
 
   const url = URL.createObjectURL(new Blob([html], { type: 'text/html' }));

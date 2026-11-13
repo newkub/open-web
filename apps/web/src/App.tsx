@@ -11,7 +11,7 @@ import { QuickOpen } from './components/QuickOpen';
 import { PreviewPane } from './components/PreviewPane';
 import { DiffView } from './components/DiffView';
 import { FileBrowser } from './components/FileBrowser';
-import { detectProject, previewProject } from '@open-web/runtime-bun';
+import { detectProject, previewProject, initBundler } from '@open-web/runtime-bun';
 import { getVfs } from './vfs';
 import { termWrite } from './termBus';
 import { requestSave } from './editorBus';
@@ -50,6 +50,15 @@ export function App() {
   const hasProject = tree.length > 0 || mode === 'pr';
   const showWelcome = !hasProject;
   const isPr = mode === 'pr';
+
+  // Warm the esbuild wasm (~13MB) during idle time after a repo loads so
+  // auto-dev / manual preview doesn't stall on the download later.
+  useEffect(() => {
+    if (status !== 'ready' || mode !== 'repo') return;
+    const ric = window.requestIdleCallback ?? ((cb: () => void) => setTimeout(cb, 200));
+    const id = ric(() => void initBundler().catch(() => {}));
+    return () => window.cancelIdleCallback?.(id as number);
+  }, [status, mode]);
 
   // Auto-dev: once a repo finishes loading, detect the project and start
   // the preview automatically (once per repoUrl, toggleable via ⚡ auto-dev).

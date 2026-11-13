@@ -34,12 +34,20 @@ interface GhRepo {
 
 export async function resolveBranch(owner: string, repo: string, hint: string): Promise<string> {
   if (hint) return hint;
-  const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
-    headers: authHeaders({ Accept: 'application/vnd.github+json' }),
-  });
-  if (!res.ok) throw new Error(`GitHub API ${res.status} for ${owner}/${repo}`);
-  const data = (await res.json()) as GhRepo;
-  return data.default_branch;
+  try {
+    const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
+      headers: authHeaders({ Accept: 'application/vnd.github+json' }),
+    });
+    if (res.ok) {
+      const data = (await res.json()) as GhRepo;
+      return data.default_branch;
+    }
+  } catch {
+    /* fall through to branch guessing */
+  }
+  // API rate-limited or unreachable — guess the common default branches;
+  // the zip download itself will 404 if the guess is wrong.
+  return 'main';
 }
 
 function formatMB(bytes: number): string {
@@ -128,6 +136,7 @@ export interface LoadResult {
 }
 
 export async function loadRepoFiles(input: string): Promise<LoadResult> {
+  const started = performance.now();
   const ref = parseGitHubUrl(input);
   if (!ref) throw new Error('Not a GitHub URL — expected https://github.com/owner/repo[/tree/branch/path]');
 
@@ -143,7 +152,7 @@ export async function loadRepoFiles(input: string): Promise<LoadResult> {
     autoDevFor: null,
   });
 
-  const branch = await resolveBranch(ref.owner, ref.repo, ref.branch);
+  let branch = await resolveBranch(ref.owner, ref.repo, ref.branch);
   setState({
     branch,
     status: 'loading-zip',
@@ -152,7 +161,18 @@ export async function loadRepoFiles(input: string): Promise<LoadResult> {
     loadTotal: 0,
   });
 
-  const zip = await fetchZip(ref.owner, ref.repo, branch);
+  let zip: ArrayBuffer;
+  try {
+    zip = await fetchZip(ref.owner, ref.repo, branch);
+  } catch (e) {
+    // No explicit branch in the URL — the API may have been rate-limited
+    // and we guessed 'main'; retry the other common default once.
+    if (ref.branch) throw e;
+    const alt = branch === 'main' ? 'master' : 'main';
+    setState({ branch: alt, statusMessage: `Retrying ${alt}…` });
+    branch = alt;
+    zip = await fetchZip(ref.owner, ref.repo, branch);
+  }
   setState({ status: 'extracting', statusMessage: 'Extracting into virtual FS…' });
 
   const vfs = await resetVfs();
@@ -206,7 +226,7 @@ export async function loadRepoFiles(input: string): Promise<LoadResult> {
   const walk = vfs.walk();
   setState({
     status: 'ready',
-    statusMessage: `${ref.owner}/${ref.repo}${ref.subdir ? `/${ref.subdir}` : ''}@${branch} — ${entries.length} files${skipped ? ` (${skipped} skipped)` : ''}`,
+    statusMessage: `${ref.owner}/${ref.repo}${ref.subdir ? `/${ref.subdir}` : ''}@${branch} — ${entries.length} files${skipped ? ` (${skipped} skipped)` : ''} · ${((performance.now() - started) / 1000).toFixed(1)}s`,
     fileCount: entries.length,
     totalBytes,
     tree: walk,
