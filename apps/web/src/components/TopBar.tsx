@@ -3,17 +3,28 @@ import { useStore } from '@tanstack/react-store';
 import { projectStore, setState } from '../store';
 import { loadRepo } from '../github';
 
-export function TopBar() {
+const LS_KEY = 'stackbox:last-url';
+
+export function TopBar({ onMenu }: { onMenu: () => void }) {
   const status = useStore(projectStore, (s) => s.status);
   const message = useStore(projectStore, (s) => s.statusMessage);
   const fileCount = useStore(projectStore, (s) => s.fileCount);
-  const [url, setUrl] = useState('');
+  const owner = useStore(projectStore, (s) => s.owner);
+  const repo = useStore(projectStore, (s) => s.repo);
+  const branch = useStore(projectStore, (s) => s.branch);
+  const [url, setUrl] = useState(() => localStorage.getItem(LS_KEY) ?? '');
   const [error, setError] = useState('');
 
-  const open = async () => {
+  const busy = status === 'loading-meta' || status === 'loading-zip' || status === 'extracting';
+
+  const open = async (target?: string) => {
+    const value = (target ?? url).trim();
+    if (!value) return;
     setError('');
+    localStorage.setItem(LS_KEY, value);
+    setUrl(value);
     try {
-      await loadRepo(url || 'https://github.com/oven-sh/bun');
+      await loadRepo(value);
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
       setState({ status: 'error', statusMessage: 'Failed to load repo' });
@@ -22,7 +33,16 @@ export function TopBar() {
 
   return (
     <header className="topbar">
+      <button className="menu-btn" onClick={onMenu} aria-label="Toggle files">
+        ☰
+      </button>
       <div className="brand">⬒ stackbox</div>
+      {owner && repo && (
+        <div className="repo-chip" title={`${owner}/${repo}@${branch}`}>
+          {owner}/{repo}
+          <span className="repo-branch">{branch}</span>
+        </div>
+      )}
       <form
         className="urlbar"
         onSubmit={(e) => {
@@ -35,16 +55,16 @@ export function TopBar() {
           onChange={(e) => setUrl(e.target.value)}
           placeholder="https://github.com/owner/repo"
           spellCheck={false}
+          aria-label="GitHub repository URL"
         />
-        <button type="submit" disabled={status === 'loading-meta' || status === 'loading-zip' || status === 'extracting'}>
-          {status === 'idle' || status === 'error' ? 'Open' : '…'}
+        <button type="submit" disabled={busy}>
+          {busy ? '…' : status === 'ready' ? 'Reload' : 'Open'}
         </button>
       </form>
       <div className={`status status-${status}`} title={message}>
         <span className="status-dot" />
         <span className="status-text">
-          {message}
-          {fileCount > 0 && status === 'ready' ? ` · ${fileCount} files` : ''}
+          {busy ? message : fileCount > 0 && status === 'ready' ? `${fileCount} files` : message}
         </span>
         {error && <span className="error">{error}</span>}
       </div>

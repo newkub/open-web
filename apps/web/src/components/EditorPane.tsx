@@ -14,7 +14,8 @@ import { xml } from '@codemirror/lang-xml';
 import { yaml } from '@codemirror/lang-yaml';
 import { useStore } from '@tanstack/react-store';
 import { projectStore, closeTab, markDirty } from '../store';
-import { getVfs, readTextFile } from '../vfs';
+import { getVfs } from '../vfs';
+import { registerSaver } from '../editorBus';
 import type { Extension } from '@codemirror/state';
 
 function langFor(path: string): Extension[] {
@@ -53,6 +54,10 @@ export function EditorPane() {
   const [contents, setContents] = useState<Record<string, string>>({});
   const [binary, setBinary] = useState<Record<string, boolean>>({});
   const saveTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+  const contentsRef = useRef<Record<string, string>>({});
+  const activeRef = useRef<string | null>(null);
+  contentsRef.current = contents;
+  activeRef.current = activeTab;
 
   // Load file contents when tabs change.
   useEffect(() => {
@@ -79,6 +84,21 @@ export function EditorPane() {
 
   const active = tabs.find((t) => t.path === activeTab) ?? null;
   const extensions = useMemo(() => (active ? langFor(active.path) : []), [active?.path]);
+
+  // Register Ctrl+S handler: flush pending saves immediately.
+  useEffect(() => {
+    registerSaver(() => {
+      const path = activeRef.current;
+      const value = path ? contentsRef.current[path] : undefined;
+      if (!path || value === undefined) return;
+      clearTimeout(saveTimers.current[path]);
+      void getVfs().then((vfs) => {
+        vfs.write_file(path, new TextEncoder().encode(value));
+        markDirty(path, false);
+      });
+    });
+    return () => registerSaver(null);
+  }, []);
 
   const onChange = (value: string) => {
     if (!active) return;

@@ -22,6 +22,7 @@ export interface ProjectState {
   tabs: OpenTab[];
   activeTab: string | null;
   terminalOpen: boolean;
+  quickOpen: boolean;
 }
 
 const initial: ProjectState = {
@@ -38,6 +39,7 @@ const initial: ProjectState = {
   tabs: [],
   activeTab: null,
   terminalOpen: true,
+  quickOpen: false,
 };
 
 export const projectStore = new Store<ProjectState>(initial);
