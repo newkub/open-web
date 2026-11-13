@@ -26,7 +26,11 @@ export function App() {
   const autoDevFor = useStore(projectStore, (s) => s.autoDevFor);
   const repoUrl = useStore(projectStore, (s) => s.repoUrl);
   const notice = useStore(projectStore, (s) => s.notice);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  // Sidebar defaults closed on narrow screens (drawer mode) — otherwise it
+  // covers the whole welcome screen on mobile.
+  const [sidebarOpen, setSidebarOpen] = useState(
+    () => !window.matchMedia('(max-width: 900px)').matches,
+  );
 
   // Toast auto-dismiss.
   useEffect(() => {
