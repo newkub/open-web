@@ -55,7 +55,7 @@
     "runtime:bun"
   ],
   "scripts": {
-    "dev": "bun run src/index.ts",
+    "dev": "bun run src/presentation/cli/cli.ts",
     "build:preview": "bunx vite build --config preview/vite.config.ts",
     "build:cli": "bun build src/index.ts src/presentation/cli/cli.ts --outdir dist --target bun --external open && tsc --emitDeclarationOnly",
     "build:compile": "bun build --compile src/presentation/cli/cli.ts --outfile dist/open-in-web.exe && bun -e \"for (const n of ['ofw','open-files','open-in-open-terminal']) Bun.write('dist/'+n+'.exe', Bun.file('dist/open-in-web.exe'))\"",

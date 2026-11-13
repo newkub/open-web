@@ -17,7 +17,7 @@ Run the following scripts from the workspace root:
 
 | Script | Command |
 |---|---|
-| `dev` | `bun run src/index.ts` |
+| `dev` | `bun run src/presentation/cli/cli.ts` |
 | `build` | `bun run build` (build:preview + build:diff + build:cli + build:compile) |
 | `build:preview` | `bunx vite build --config preview/vite.config.ts` |
 | `build:diff` | `bun --cwd diff run build && bun build diff/src/serve.ts --outdir dist/diff-server --target bun` |
