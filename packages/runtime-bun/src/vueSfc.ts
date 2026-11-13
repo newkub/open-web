@@ -41,7 +41,10 @@ export function compileVueFile(source: string, filename: string): VueCompileResu
           source: descriptor.template.content,
           filename,
           id,
-          compilerOptions: {},
+          // bindingMetadata lets the template compiler resolve components
+          // registered in <script> — without it <NavBar /> compiles to a
+          // native <navbar> element and renders nothing.
+          compilerOptions: { bindingMetadata: r.bindings },
         });
         if (t.errors.length) {
           return { errors: t.errors.map((e) => ({ text: String(e) })) };
