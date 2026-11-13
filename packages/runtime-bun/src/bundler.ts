@@ -193,5 +193,14 @@ export async function bundleProject(
     result.outputFiles?.find((f) => !f.path.endsWith('.css'))?.text ??
     '';
   const css = result.outputFiles?.find((f) => f.path.endsWith('.css'))?.text ?? '';
-  return { code: js, css };
+  // esbuild's __export helper creates plain objects for module namespaces,
+  // but consumers like vue-router detect ES modules via
+  // `__esModule || Symbol.toStringTag === 'Module'` to unwrap `.default`
+  // (lazy route components). Stamp the marker so namespaces behave like
+  // real ESM namespaces.
+  const code = js.replace(
+    '__defProp(target, name, { get: all[name], enumerable: true });\n};',
+    '__defProp(target, name, { get: all[name], enumerable: true });\n  __defProp(target, Symbol.toStringTag, { value: "Module" });\n};',
+  );
+  return { code, css };
 }
