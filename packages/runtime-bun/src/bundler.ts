@@ -213,6 +213,10 @@ export async function bundleProject(
     entryPoints: [entry],
     bundle: true,
     write: false,
+    // Named output so outputFiles paths are deterministic — the default
+    // "<stdout>" path does not end with .js and silently produced empty
+    // previews when looked up by extension.
+    outfile: 'bundle.js',
     format: opts.format ?? 'esm',
     platform: opts.platform ?? 'browser',
     target: 'es2020',
@@ -231,7 +235,10 @@ export async function bundleProject(
     logLevel: 'silent',
   });
 
-  const js = result.outputFiles?.find((f) => f.path.endsWith('.js'))?.text ?? '';
+  const js =
+    result.outputFiles?.find((f) => f.path.endsWith('.js'))?.text ??
+    result.outputFiles?.find((f) => !f.path.endsWith('.css'))?.text ??
+    '';
   const css = result.outputFiles?.find((f) => f.path.endsWith('.css'))?.text ?? '';
   return { code: js, css };
 }
