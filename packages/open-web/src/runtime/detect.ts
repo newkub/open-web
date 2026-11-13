@@ -9,7 +9,16 @@ export interface ProjectInfo {
   hasPackageJson: boolean;
   deps: Record<string, string>;
   scripts: Record<string, string>;
+  /** True when deps look like a server-side app — browser preview will not work. */
+  serverSide: boolean;
 }
+
+// Deps that mean "this runs on a server", not in a browser preview.
+const SERVER_DEPS = new Set([
+  'express', 'fastify', 'koa', 'hapi', '@hapi/hapi', 'restify', 'polka',
+  '@nestjs/core', '@nestjs/common', 'next', 'nuxt', 'remix', '@remix-run/node',
+  'astro', 'vitepress', 'docsify', 'keystone', 'feathers', '@feathersjs/feathers',
+]);
 
 const ENTRY_CANDIDATES = [
   '/src/main.tsx', '/src/main.jsx', '/src/main.ts', '/src/main.js',
@@ -66,11 +75,18 @@ export function detectProject(vfs: VfsLike): ProjectInfo {
     }
   }
 
+  // Server-side when a server framework appears in deps — or the repo *is*
+  // the framework itself (its own package.json won't list itself as a dep).
+  const serverSide =
+    Object.keys(deps).some((d) => SERVER_DEPS.has(d)) ||
+    SERVER_DEPS.has(String(pkg?.name ?? ''));
+
   return {
     framework,
     entry,
     hasPackageJson: !!pkg,
     deps,
     scripts,
+    serverSide,
   };
 }

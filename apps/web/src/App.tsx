@@ -82,6 +82,10 @@ export function App() {
         const vfs = await getVfs();
         const info = detectProject(vfs);
         const hasDevScript = !!(info.scripts.dev || info.scripts.start);
+        if (info.serverSide) {
+          termWrite('\x1b[2m[auto-dev] server-side project detected — browser preview skipped (try `run <file>` in the terminal)\x1b[0m\r\n');
+          return;
+        }
         if (!info.entry) {
           termWrite('\x1b[2m[auto-dev] no runnable entry found — skipped\x1b[0m\r\n');
           return;
