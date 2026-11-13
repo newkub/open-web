@@ -14,7 +14,7 @@ export interface ProjectInfo {
 const ENTRY_CANDIDATES = [
   '/src/main.tsx', '/src/main.jsx', '/src/main.ts', '/src/main.js',
   '/src/index.tsx', '/src/index.jsx', '/src/index.ts', '/src/index.js',
-  '/index.html', '/index.js', '/index.ts', '/main.js', '/main.ts',
+  '/index.js', '/index.ts', '/main.js', '/main.ts',
   '/app.js', '/app.ts', '/app.jsx', '/app.tsx',
 ];
 
@@ -43,14 +43,15 @@ export function detectProject(vfs: VfsLike): ProjectInfo {
   else if (deps.svelte || deps['@sveltejs/kit']) framework = 'svelte';
   else if (Object.keys(deps).length === 0) framework = 'vanilla';
 
-  // Prefer the script tag in index.html when present.
+  // Prefer the script tag in index.html when present — module scripts
+  // first, then any classic script with a JS/TS src.
   let entry: string | null = null;
   const html = vfs.read_file('/index.html');
   if (html) {
     const text = new TextDecoder().decode(html);
     const m = text.match(/<script[^>]+type=["']module["'][^>]+src=["']([^"']+)["']/i)
       ?? text.match(/<script[^>]+src=["']([^"']+)["'][^>]*type=["']module["']/i)
-      ?? text.match(/<script[^>]+src=["']([^"']+\.jsx?)["']/i);
+      ?? text.match(/<script[^>]+src=["']([^"']+\.(?:jsx?|tsx?|mjs|cjs))["']/i);
     if (m) {
       const src = m[1];
       entry = src.startsWith('/') ? src : `/${src.replace(/^\.\//, '')}`;

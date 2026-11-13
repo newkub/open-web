@@ -18,10 +18,18 @@ export function initBundler(): Promise<typeof esbuild> {
 
 const EXTS = ['', '.tsx', '.ts', '.jsx', '.js', '.mjs', '.cjs', '.json', '.css', '.vue'];
 const INDEX_EXTS = EXTS.slice(1);
+// Static assets — resolved by exact filename (no extension probing needed
+// since the import specifier already carries the extension).
+const ASSET_EXTS = new Set([
+  '.svg', '.png', '.jpg', '.jpeg', '.gif', '.webp', '.avif', '.ico', '.bmp',
+  '.woff', '.woff2', '.ttf', '.otf', '.eot',
+  '.mp3', '.mp4', '.webm', '.wav', '.ogg', '.flac',
+  '.pdf', '.txt', '.md', '.glb', '.gltf', '.wasm',
+]);
 
 function extOf(path: string): string {
   const i = path.lastIndexOf('.');
-  return i > path.lastIndexOf('/') ? path.slice(i) : '';
+  return i > path.lastIndexOf('/') ? path.slice(i).toLowerCase() : '';
 }
 
 function dirOf(path: string): string {
@@ -38,11 +46,17 @@ function loaderFor(ext: string): Loader {
     case '.json': return 'json';
     case '.css': return 'css';
     case '.html': return 'text';
-    default: return 'js';
+    case '.txt': case '.md': return 'text';
+    default:
+      // Images/fonts/media/pdf → inline as data URL so the preview is
+      // self-contained (esbuild 'file' loader would emit a separate
+      // asset we never serve).
+      return ASSET_EXTS.has(ext) ? 'dataurl' : 'js';
   }
 }
 
 function resolveVfsImport(vfs: VfsLike, resolveDir: string, spec: string): string {
+  spec = spec.split('?')[0].split('#')[0]; // vite-isms like ?url/?raw
   const base = spec.startsWith('/')
     ? spec
     : spec.startsWith('.')
@@ -56,6 +70,11 @@ function resolveVfsImport(vfs: VfsLike, resolveDir: string, spec: string): strin
     else parts.push(seg);
   }
   const clean = '/' + parts.join('/');
+  const cleanExt = extOf(clean);
+  // Asset imports carry their extension — check existence directly first.
+  if (cleanExt && ASSET_EXTS.has(cleanExt)) {
+    return vfs.exists(clean) ? clean : clean; // onLoad reports if missing
+  }
   for (const ext of EXTS) {
     if (vfs.exists(clean + ext)) return clean + ext;
   }

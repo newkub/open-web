@@ -56,22 +56,23 @@ export function App() {
     if (status !== 'ready' || mode !== 'repo' || !autoDev || autoDevFor === repoUrl) return;
     setState({ autoDevFor: repoUrl });
     void (async () => {
-      const vfs = await getVfs();
-      const info = detectProject(vfs);
-      const hasDevScript = !!(info.scripts.dev || info.scripts.start);
-      if (!info.entry) {
-        termWrite('\x1b[2m[auto-dev] no runnable entry found — skipped\x1b[0m\r\n');
-        return;
-      }
-      termWrite(
-        `\x1b[2m[auto-dev] ${info.framework} project${hasDevScript ? ` (${info.scripts.dev ?? info.scripts.start})` : ''} — starting preview…\x1b[0m\r\n`,
-      );
       try {
+        const vfs = await getVfs();
+        const info = detectProject(vfs);
+        const hasDevScript = !!(info.scripts.dev || info.scripts.start);
+        if (!info.entry) {
+          termWrite('\x1b[2m[auto-dev] no runnable entry found — skipped\x1b[0m\r\n');
+          return;
+        }
+        termWrite(
+          `\x1b[2m[auto-dev] ${info.framework} project${hasDevScript ? ` (${info.scripts.dev ?? info.scripts.start})` : ''} — starting preview…\x1b[0m\r\n`,
+        );
         const r = await previewProject(vfs, (m) => termWrite(`\x1b[2m${m}\x1b[0m\r\n`));
         setState({ previewUrl: r.url, previewOpen: true, previewTitle: r.title });
         termWrite('\x1b[32m[auto-dev] preview ready →\x1b[0m\r\n');
       } catch (e) {
-        termWrite(`\x1b[31m[auto-dev] preview failed: ${e instanceof Error ? e.message : e}\x1b[0m\r\n`);
+        const msg = e instanceof Error ? e.message : String(e);
+        termWrite(`\x1b[31m[auto-dev] failed: ${msg.slice(0, 500)}\x1b[0m\r\n`);
       }
     })();
   }, [status, mode, autoDev, autoDevFor, repoUrl]);
