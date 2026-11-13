@@ -55,6 +55,13 @@ function loaderFor(ext: string): Loader {
   }
 }
 
+/** True when `path` exists in the VFS as a file (not a directory). */
+function isFile(vfs: VfsLike, path: string): boolean {
+  const dir = dirOf(path);
+  const base = path.slice(dir === '/' ? 1 : dir.length + 1);
+  return vfs.list(dir).some((e) => e.name === base && !e.is_dir);
+}
+
 function resolveVfsImport(vfs: VfsLike, resolveDir: string, spec: string): string {
   spec = spec.split('?')[0].split('#')[0]; // vite-isms like ?url/?raw
   const base = spec.startsWith('/')
@@ -71,17 +78,21 @@ function resolveVfsImport(vfs: VfsLike, resolveDir: string, spec: string): strin
   }
   const clean = '/' + parts.join('/');
   const cleanExt = extOf(clean);
-  // Asset imports carry their extension — check existence directly first.
-  if (cleanExt && ASSET_EXTS.has(cleanExt)) {
-    return vfs.exists(clean) ? clean : clean; // onLoad reports if missing
+
+  if (cleanExt) {
+    // Explicit extension (./foo.js, ./logo.svg) — must be a real file,
+    // not a directory that happens to share the name.
+    return isFile(vfs, clean) ? clean : clean; // onLoad reports if missing
   }
-  for (const ext of EXTS) {
+  for (const ext of EXTS.slice(1)) {
     if (vfs.exists(clean + ext)) return clean + ext;
   }
   for (const ext of INDEX_EXTS) {
     if (vfs.exists(`${clean}/index${ext}`)) return `${clean}/index${ext}`;
   }
-  return clean; // let onLoad report not-found
+  // Extensionless file with no extension at all (rare) — accept only
+  // real files so directory imports fall through to index resolution.
+  return isFile(vfs, clean) ? clean : clean; // onLoad reports if missing
 }
 
 function compileVueFile(source: string, filename: string) {

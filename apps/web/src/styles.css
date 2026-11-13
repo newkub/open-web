@@ -409,3 +409,90 @@ body {
 .file-preview-pdf { width: 100%; height: 100%; border: none; background: #fff; }
 .preview-name { font-family: ui-monospace, monospace; font-size: 12px; color: var(--text-dim); margin: 0; }
 .file-preview audio, .file-preview video { max-width: min(720px, 90%); }
+
+/* ---------- File browser (empty state) ---------- */
+.file-browser {
+  flex: 1; display: flex; flex-direction: column; min-height: 0;
+  background: var(--bg); animation: fadeIn 0.25s ease;
+}
+.fb-head {
+  display: flex; align-items: center; gap: 14px; padding: 18px 24px 12px;
+  border-bottom: 1px solid var(--border);
+}
+.fb-search {
+  flex: 1; max-width: 420px; background: var(--bg-panel); border: 1px solid var(--border);
+  color: var(--text); border-radius: 8px; padding: 9px 14px; font-size: 14px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.fb-search:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(88,166,255,0.15); }
+.fb-meta { font-size: 12px; color: var(--text-dim); font-family: ui-monospace, monospace; }
+.fb-groups { flex: 1; overflow: auto; padding: 16px 24px 32px; }
+.fb-group {
+  margin-bottom: 22px; animation: fadeSlideIn 0.35s cubic-bezier(0.2,0.7,0.3,1) both;
+}
+.fb-group-head {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+  font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--text-dim);
+}
+.fb-group-name { color: var(--text); }
+.fb-count {
+  background: var(--bg-panel); border: 1px solid var(--border); border-radius: 10px;
+  padding: 1px 8px; font-size: 11px;
+}
+.fb-files {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 6px;
+}
+.fb-file {
+  display: flex; align-items: center; gap: 8px; text-align: left;
+  background: var(--bg-panel); border: 1px solid var(--border); border-radius: 8px;
+  padding: 8px 10px; cursor: pointer; color: var(--text); font-size: 13px;
+  transition: border-color 0.12s, transform 0.12s, background 0.12s;
+  min-width: 0;
+}
+.fb-file:hover { border-color: var(--accent); transform: translateY(-1px); background: #1b2430; }
+.fb-file-name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fb-file-path {
+  margin-left: auto; font-size: 10px; color: var(--text-dim);
+  font-family: ui-monospace, monospace; white-space: nowrap; overflow: hidden;
+  max-width: 40%; text-overflow: ellipsis; direction: rtl;
+}
+.fb-empty { color: var(--text-dim); padding: 40px; text-align: center; }
+.fb-foot { padding: 8px 24px; font-size: 12px; color: var(--text-dim); border-top: 1px solid var(--border); }
+
+/* ---------- Context menu ---------- */
+.ctx-menu {
+  position: fixed; z-index: 100; min-width: 170px;
+  background: var(--bg-panel); border: 1px solid var(--border); border-radius: 10px;
+  padding: 5px; box-shadow: 0 14px 40px rgba(0,0,0,0.55);
+  animation: fadeSlideIn 0.14s ease both;
+}
+.ctx-item {
+  display: block; width: 100%; text-align: left; background: none; border: none;
+  color: var(--text); font-size: 13px; padding: 7px 12px; border-radius: 6px; cursor: pointer;
+}
+.ctx-item:hover:not(:disabled) { background: rgba(88,166,255,0.12); }
+.ctx-item:disabled { opacity: 0.4; cursor: default; }
+.ctx-item.danger { color: #f47067; }
+.ctx-item.danger:hover:not(:disabled) { background: rgba(248,81,73,0.12); }
+
+/* ---------- Badges ---------- */
+.count-badge {
+  margin-left: auto; font-size: 10px; color: var(--text-dim);
+  background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+  padding: 0 6px; line-height: 16px;
+}
+.tree-row .size { margin-left: auto; }
+.tree-row.dir .count-badge { margin-left: auto; }
+.tree-row.dir .size { display: none; }
+
+/* ---------- Animations ---------- */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.tree-row { animation: fadeSlideIn 0.25s ease both; }
+.editor-pane, .preview-pane, .diff-view { animation: fadeIn 0.2s ease; }
+.tab { transition: color 0.12s, border-color 0.12s; }
+.tab.active { animation: fadeSlideIn 0.2s ease both; }

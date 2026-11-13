@@ -10,6 +10,7 @@ import { Welcome } from './components/Welcome';
 import { QuickOpen } from './components/QuickOpen';
 import { PreviewPane } from './components/PreviewPane';
 import { DiffView } from './components/DiffView';
+import { FileBrowser } from './components/FileBrowser';
 import { detectProject, previewProject } from '@open-web/runtime-bun';
 import { getVfs } from './vfs';
 import { termWrite } from './termBus';
@@ -111,6 +112,8 @@ export function App() {
             <Welcome />
           ) : activeTab ? (
             <EditorPane />
+          ) : hasProject ? (
+            <FileBrowser />
           ) : (
             <div className="editor-empty">
               Select a file from the explorer
