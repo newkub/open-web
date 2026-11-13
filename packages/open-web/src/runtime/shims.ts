@@ -2,7 +2,7 @@
 // Each returns JS module source for the 'shim' esbuild namespace.
 
 const PATH_SHIM = `
-const sep = '/';
+export const sep = '/';
 const posix = {
   normalize(p){ const parts=[]; for(const s of String(p).split('/')){ if(!s||s==='.')continue; if(s==='..')parts.pop(); else parts.push(s);} return '/'+parts.join('/'); },
   join(...a){ return posix.normalize(a.filter(Boolean).join('/')); },
@@ -15,7 +15,7 @@ const posix = {
 export default posix;
 export const normalize=posix.normalize, join=posix.join, resolve=posix.resolve,
   dirname=posix.dirname, basename=posix.basename, extname=posix.extname,
-  isAbsolute=posix.isAbsolute, sep='/';
+  isAbsolute=posix.isAbsolute;
 `;
 
 const PROCESS_SHIM = `
@@ -25,7 +25,7 @@ const proc = {
   argv: ['node','main.js'],
   env: {},
   platform: 'browser',
-  version: 'v20.0.0-stackbox',
+  version: 'v20.0.0-open-web',
   versions: { node: '20.0.0' },
   stdout: { write:(s)=>{__emit(String(s)); return true}, isTTY:false },
   stderr: { write:(s)=>{__emit(String(s)); return true}, isTTY:false },
@@ -61,11 +61,11 @@ const OS_SHIM = `
 export const platform=()=>'browser';
 export const type=()=>'BrowserVM';
 export const arch=()=>'wasm32';
-export const release=()=>'stackbox';
+export const release=()=>'open-web';
 export const tmpdir=()=>'/tmp';
 export const homedir=()=>'/home/user';
-export const hostname=()=>'stackbox';
-export const cpus=()=>[{model:'stackbox-vm',speed:0}];
+export const hostname=()=>'open-web';
+export const cpus=()=>[{model:'open-web-vm',speed:0}];
 export const totalmem=()=>navigator.deviceMemory?navigator.deviceMemory*2**30:2**30;
 export const freemem=totalmem;
 export const uptime=()=>performance.now()/1000;
@@ -82,7 +82,7 @@ export default { randomBytes, randomUUID, webcrypto, subtle:c.subtle, getRandomV
 `;
 
 function stubError(name: string): string {
-  return `throw new Error(${JSON.stringify(name + ' is not available in the stackbox edge-js runtime')});`;
+  return `throw new Error(${JSON.stringify(name + ' is not available in the open-web edge-js runtime')});`;
 }
 
 const STUBS = new Set(['fs', 'child_process', 'http', 'https', 'net', 'tls', 'zlib', 'stream', 'assert', 'querystring', 'module', 'vm', 'tty', 'readline', 'dns', 'cluster', 'worker_threads', 'perf_hooks']);

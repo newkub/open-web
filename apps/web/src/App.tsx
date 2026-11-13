@@ -95,6 +95,7 @@ export function App() {
       } catch (e) {
         const msg = e instanceof Error ? e.message : String(e);
         termWrite(`\x1b[31m[auto-dev] failed: ${msg.slice(0, 500)}\x1b[0m\r\n`);
+        notify(`Auto-dev preview failed: ${msg.split('\n')[0].slice(0, 120)}`);
       }
     })();
   }, [status, mode, autoDev, autoDevFor, repoUrl]);
